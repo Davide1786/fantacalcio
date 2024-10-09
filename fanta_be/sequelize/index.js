@@ -21,6 +21,10 @@ const modelDefiners = [
   require("./models/team.model"),
   require("./models/teamPlayer.model"),
   require("./models/user.model"),
+  require("./models/acutionBind.model"),
+  require("./models/matchSelection.model"),
+  require("./models/tactics.model"),
+  require("./models/userLeague.model"),
 ];
 
 /*

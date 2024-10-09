@@ -1,7 +1,8 @@
 // FILE DELLE RELAZIONI
 
 function applyExtraSetup(sequelize) {
-  const { club, goal, league, player, team, user, statPlayer, teamPlayer } = sequelize.models;
+  const { club, goal, league, player, team, user, statPlayer, teamPlayer, acutionBind, calendar, eventCalendar, matchSelection, tactics, userLeague } =
+    sequelize.models;
 
   club.hasMany(player); // 1 a n
   player.belongsTo(club); // 1 a 1

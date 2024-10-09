@@ -1,10 +1,11 @@
 const express = require("express"); //  importo Express, il framework per creare server Node.js.
+const cors = require("cors");
 /*
 Body-parser, è un middleware che permette di analizzare il corpo delle richieste HTTP,
 utile per gestire dati inviati tramite POST, PUT, ecc.
 Utilizzato per estrarre il corpo delle richieste JSON o URL-encoded.
 */
-// const bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 
 /*
 il file app richiede i vari moduli e l'importa nella const routes
@@ -25,18 +26,20 @@ const routes = {
 // crea istanza di express. ora posso accedere a tutti i metodi
 const app = express();
 
+app.use(cors());
+
 /*
 Queste righe configurano il middleware body-parser:
 bodyParser.json(): Analizza i dati del corpo delle richieste in formato JSON e li trasforma in oggetti JavaScript.
 bodyParser.urlencoded({ extended: true }): Consente di analizzare i dati del corpo delle richieste quando sono URL-encoded, come nei form HTML.
 trasformano i dati JSON in oggetti JavaScript accessibili tramite req.body.
 
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
 */
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Analizza i dati del corpo delle richieste in formato JSON e li trasforma in oggetti JavaScript accessibili tramite req.body.
-app.use(express.json());
+// app.use(express.json());
 
 // Creiamo un wrapper per aggirare il problema degli errori asincroni che non vengono trasmessi correttamente.
 /*
@@ -101,6 +104,7 @@ for (const [routeName, routeController] of Object.entries(routes)) {
     app.get(`/api/${routeName}/:id`, makeHandlerAwareOfAsyncErrors(routeController.getById));
   }
   if (routeController.create) {
+    console.log(routeController, "🍕");
     app.post(`/api/${routeName}`, makeHandlerAwareOfAsyncErrors(routeController.create));
   }
   if (routeController.update) {

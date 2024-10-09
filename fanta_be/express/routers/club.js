@@ -1,5 +1,5 @@
 const { models } = require("../../sequelize"); // Importa i modelli
-// const { getIdParam } = require('../helpers'); // Assicurati di avere questa funzione per gestire gli ID
+const { getIdParam } = require("../helpers"); // Assicurati di avere questa funzione per gestire gli ID
 
 async function getAll(req, res) {
   const clubs = await models.club.findAll(); // Assicurati che il nome del modello sia corretto
@@ -8,7 +8,7 @@ async function getAll(req, res) {
 
 async function getById(req, res) {
   const id = getIdParam(req);
-  const club = await models.club.model.findByPk(id);
+  const club = await models.club.findByPk(id);
   if (club) {
     res.status(200).json(club);
   } else {
