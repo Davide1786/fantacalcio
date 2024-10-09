@@ -21,6 +21,26 @@ belongsToMany: Quando hai bisogno di una relazione bidirezionale senza una gerar
 hasMany: Un modello può avere molte istanze di un altro modello. (uno-a-molti)
 belongsTo: Un modello appartiene a un'unica istanza di un altro modello. (uno-a-uno)
 
+team.belongsToMany(player, { through: teamPlayer });
+es: prendi la tabella team mettila in relazione n a n con la tabella player
+through (attraverso) la tabella ponte che sarà teamPlayer
+
 belongsToMany: Relazione bidirezionale molti-a-molti (es: studenti e corsi).
 hasMany: Relazione unidirezionale uno-a-molti (es: un autore ha molti libri).
 belongsTo: Relazione unidirezionale uno-a-uno o uno-a-molti (es: un libro appartiene a un autore).
+
+RESTful API è un'interfaccia utilizzata da due sistemi informatici per scambiare informazioni in modo sicuro su Internet.
+CRUD è l'acronimo composto dalle iniziali delle parole inglesi Create, Read, Update e Delete.
+Queste quattro lettere fanno riferimento alle quattro principali operazioni che si svolgono su un database relazionale,
+ovvero la creazione di tabelle, dati e relazioni (create),
+la loro lettura (read),
+la loro modifica tramite aggiornamento (update)
+o eliminazione (delete).
+
+quando faccio una richiesta axios.get(${baseURL}/clubs);, sto innescando una catena di eventi nel mio server Express:
+Axios invia la richiesta.
+Express riceve la richiesta e la confronta con le rotte definite.
+Express trova la rotta corrispondente (/api/clubs).
+Express esegue la funzione di callback associata a quella rotta.
+La funzione di callback recupera i dati dei club dal database (o da qualsiasi altra fonte) e li invia come risposta ad Axios.
+Axios riceve la risposta e aggiorna l'interfaccia utente.

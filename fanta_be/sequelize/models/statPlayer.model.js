@@ -1,9 +1,7 @@
 const { DataTypes } = require("sequelize");
-const createPlayerModel = require("./Player");
 
 module.exports = function (sequelize) {
-  const Player = createPlayerModel(sequelize);
-  const Player_Stat = sequelize.define("Player_Stat", {
+  sequelize.define("statPlayer", {
     match_vote: {
       type: DataTypes.INTEGER,
       // allowNull: false, // Rende il campo obbligatorio (non può essere null)
@@ -68,11 +66,9 @@ module.exports = function (sequelize) {
         min: 0, // Convalida che il valore non sia negativo (almeno 0)
       },
     },
+    // id_player: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false,
+    // },
   });
-
-  // 1 play n stats
-  Player.hasMany(Player_Stat, { foreignKey: "id_player" });
-  Player_Stat.belongsTo(Player, { foreignKey: "id_player" });
-
-  return Player_Stat;
 };
