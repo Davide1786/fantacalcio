@@ -10,7 +10,8 @@ function applyExtraSetup(sequelize) {
   player.hasMany(goal);
   goal.belongsTo(player);
 
-  player.belongsTo(statPlayer);
+  // player.belongsTo(statPlayer);
+  player.hasMany(statPlayer);
   statPlayer.belongsTo(player);
 
   league.hasMany(team);

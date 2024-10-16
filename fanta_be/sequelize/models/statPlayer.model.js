@@ -70,5 +70,6 @@ module.exports = function (sequelize) {
     //   type: DataTypes.INTEGER,
     //   allowNull: false,
     // },
+    // playerId: { type: DataTypes.TEXT },
   });
 };

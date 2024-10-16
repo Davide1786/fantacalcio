@@ -4,7 +4,14 @@ const { getIdParam } = require("../helpers"); // Assicurati di avere questa funz
 // recupera tutti i player
 async function getAll(req, res) {
   try {
-    const players = await models.player.findAll();
+    const players = await models.player.findAll({
+      include: [
+        {
+          model: models.club,
+          attributes: ["name"], // Prendi solo il nome del club
+        },
+      ],
+    });
     res.status(200).json(players);
   } catch (error) {
     console.error("Errore durante il recupero dei giocatori:", error);
@@ -14,7 +21,7 @@ async function getAll(req, res) {
 
 // crea un singolo player
 async function create(req, res) {
-  const { name, surname, age, nationality, role, price_player, info } = req.body; // clubName
+  const { name, surname, age, nationality, role, price_player, info, clubName } = req.body; // clubName
 
   // 1. Verifica che l'ID non sia stato fornito manualmente
   if (req.body.id) {
@@ -23,17 +30,17 @@ async function create(req, res) {
 
   try {
     // 2. Validazione dei campi
-    if (!name || !surname || !age || !nationality || !role || !price_player || !info) {
+    if (!name || !surname || !age || !nationality || !role || !price_player || !info || !clubName) {
       // || !clubName
       return res.status(400).json({ message: "Campi mancanti" });
     }
 
     // 3. Cerca il club per nome (commentato perché da te disabilitato)
-    // const foundClub = await models.club.findOne({ where: { name: clubName } });
+    const foundClub = await models.club.findOne({ where: { name: clubName } });
 
-    // if (!foundClub) {
-    //   return res.status(404).json({ error: "Club non trovato" });
-    // }
+    if (!foundClub) {
+      return res.status(404).json({ error: "Club non trovato" });
+    }
 
     // 4. Creazione del giocatore
     const newPlayer = await models.player.create({
@@ -44,7 +51,7 @@ async function create(req, res) {
       role,
       price_player,
       info,
-      // id_club: foundClub.id, // Associa il club trovato (commentato per ora)
+      clubId: foundClub.id,
     });
 
     // 5. Risposta con il giocatore creato
@@ -78,26 +85,31 @@ async function getById(req, res) {
 // Funzione per aggiornare un giocatore esistente
 async function update(req, res) {
   const id = getIdParam(req); // Recupera l'ID dai parametri della richiesta
+  const { name, surname, age, nationality, role, price_player, info, clubName } = req.body; // Dati del giocatore da aggiornare
 
   // Verifica che l'ID nel corpo della richiesta corrisponda all'ID del parametro
   if (req.body.id && req.body.id !== id) {
     return res.status(400).send(`Bad request: param ID (${id}) does not match body ID (${req.body.id}).`);
   }
 
-  const { name, surname, age, nationality, role, price_player, info } = req.body; // Dati del giocatore da aggiornare
-
-  // Verifica che tutti i campi obbligatori siano presenti
-  if (!name || !surname || !age || !nationality || !role || !price_player || !info) {
-    return res.status(400).json({ message: "Tutti i campi sono obbligatori!" });
-  }
-
   try {
+    // Verifica che tutti i campi obbligatori siano presenti
+    if (!name || !surname || !age || !nationality || !role || !price_player || !info || !clubName) {
+      return res.status(400).json({ message: "Tutti i campi sono obbligatori!" });
+    }
+
     // Trova il giocatore con l'id specificato
     const player = await models.player.findByPk(id);
 
     // Controlla se il giocatore esiste
     if (!player) {
       return res.status(404).json({ message: "Giocatore non trovato!" });
+    }
+
+    const foundClub = await models.club.findOne({ where: { name: clubName } });
+
+    if (!foundClub) {
+      return res.status(404).json({ error: "Club non trovato" });
     }
 
     // Aggiorna i campi del giocatore
@@ -109,6 +121,7 @@ async function update(req, res) {
       role,
       price_player,
       info,
+      clubId: foundClub.id,
     });
 
     // Restituisci una risposta con i dati aggiornati
@@ -123,15 +136,15 @@ async function update(req, res) {
         role,
         price_player,
         info,
+        club: { name: foundClub.name },
       },
     });
   } catch (error) {
-    console.error("Errore durante l'aggiornamento del giocatore:", error);
-    res.status(500).json({ message: "Errore del server", error });
+    console.error("Errore durante l'aggiornamento del giocatore:", error.message, error.stack); // Log dettagliato dell'errore
+    res.status(500).json({ message: "Errore del server", error: error.message }); // Risposta con dettagli dell'errore
   }
 }
 
-// Funzione per eliminare un giocatore esistente
 async function remove(req, res) {
   const id = getIdParam(req); // Recupera l'ID dai parametri della richiesta
 

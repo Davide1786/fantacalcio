@@ -9,5 +9,6 @@ module.exports = (sequelize) => {
     role: { type: DataTypes.STRING },
     price_player: { type: DataTypes.INTEGER },
     info: { type: DataTypes.TEXT },
+    clubName: { type: DataTypes.TEXT },
   });
 };

@@ -28,12 +28,12 @@ async function init() {
     attivandolo verrà buttato giu tutto il DB e ricostruito
     FARE ATTENZIONE A COME LO USO
     */
-    sequelize
-      .sync({ force: true })
-      .then(() => {
-        console.log("Database e tabelle sincronizzate!");
-      })
-      .catch((error) => console.error("Errore durante la sincronizzazione:", error));
+    // sequelize
+    //   .sync({ force: true })
+    //   .then(() => {
+    //     console.log("Database e tabelle sincronizzate!");
+    //   })
+    //   .catch((error) => console.error("Errore durante la sincronizzazione:", error));
   });
 }
 

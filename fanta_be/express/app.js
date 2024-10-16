@@ -19,7 +19,7 @@ const routes = {
   goal: require("./routers/goal"),
   league: require("./routers/league"),
   player: require("./routers/player"),
-  playerStat: require("./routers/playerStats"),
+  playerStats: require("./routers/playerStats"),
   team: require("./routers/team"),
 };
 
