@@ -61,16 +61,138 @@ export const statsPlayer = createReducer([], builder =>
 
 // export const statsPlayer = createReducer([], (builder) => builder.addCase("recoverStats", (state, action) => state + action.payload));
 
-import { createReducer } from "@reduxjs/toolkit";
-import { fetchPlayerStats } from "../actions/statsPlayer.action";
+import { createReducer, createSlice } from "@reduxjs/toolkit";
+// import { fetchPlayerStats } from "../actions/statsPlayer.action";
 
 // export const statsPlayer = createReducer(
 //   [],
 //   (builder) => builder.addCase(fetchPlayerStats.fulfilled, (state, action) => state + action.payload) // Aggiorna lo state con i dati recuperati
 // );
 
-export const statsPlayer = createReducer([], (builder) =>
-  builder.addCase(fetchPlayerStats.fulfilled, (state, action) => {
-    return action.payload; // Sostituisci lo stato precedente con i nuovi dati
-  })
-);
+// export const statsPlayer = createReducer([], (builder) =>
+//   builder.addCase(fetchPlayerStats.fulfilled, (state, action) => {
+//     return action.payload; // Sostituisci lo stato precedente con i nuovi dati
+//   })
+// );
+
+const playerStatsSlice = createSlice({
+  // serve per definire facilmente una porzione di stato in Redux con reducers e actions.
+  name: "statsSlice", // Definisce il nome della slice, usato per identificare actions e reducers.
+  /*
+  Definisce lo stato iniziale della slice con 3 proprietà:
+    data: []: Array vuoto per contenere i dati dei players.
+    status: "idle": Indica lo stato iniziale (inattivo).
+    error: null: Nessun errore iniziale.
+  */
+  initialState: { data: [], isShowCardStats: false, isEditStats: { id: "", boolean: true }, singlePlayerStats: [], status: "idle", error: null },
+  reducers: {
+    // ============== show ======================
+    setIsShow: (state, action) => {
+      state.isShowCardStats = action.payload;
+    },
+    setIsEditStats: (state, action) => {
+      state.isEditStats = { id: action.payload.id, boolean: action.payload.boolean };
+    },
+    // ============================== RECUPERA LISTA STATISTICHE =========================
+    // Funzioni che modificano lo stato della slice in base alle azioni.
+    fetchListStatsPlayerStart: (state) => {
+      // Cambia lo stato in "loading" quando si inizia a recuperare i dati.
+      state.status = "loading";
+    },
+    fetchListStatsPlayerSuccess: (state, action) => {
+      // Aggiorna lo stato con i dati ricevuti dall'API e cambia lo stato in "succeeded".
+      state.status = "succeeded";
+      state.data = action.payload;
+    },
+
+    fetchListStatsPlayerFailure: (state, action) => {
+      // Aggiorna lo stato con l'errore e cambia lo stato in "failed".
+      state.status = "failed";
+      state.error = action.payload;
+    },
+    // ============================== RECUPERA SINGOLA STATISTICA =========================
+    singlePlayerStatsStart: (state) => {
+      state.status = "loading";
+    },
+    singlePlayerStatsSuccess: (state, action) => {
+      state.status = "succeeded";
+      state.data = action.payload;
+    },
+    singlePlayerStatsFailure: (state, action) => {
+      state.status = "failed";
+      state.data = action.payload;
+    },
+    // ============================== EDIT SINGOLA STATISTICA =========================
+
+    editPlayerStatsStart: (state) => {
+      state.status = "loading";
+    },
+    editPlayerStatsSuccess: (state, action) => {
+      state.status = "succeeded";
+      state.data = state.data.map((stats) => (stats.id === action.payload.data.id ? action.payload.data : stats));
+      state.isEditStats = { id: "", boolean: false };
+    },
+    editPlayerStatsFailure: (state, action) => {
+      state.status = "failed";
+      state.data = action.payload;
+    },
+    // ============================== ADD SINGOLA STATISTICA =========================
+    addPlayerStatsStart: (state) => {
+      state.status = "loading";
+    },
+    addPlayerStatsSuccess: (state, action) => {
+      state.status = "succeeded";
+      state.data = action.payload;
+    },
+    addPlayerStatsFailure: (state, action) => {
+      state.status = "failed";
+      state.data = action.payload;
+    },
+  },
+});
+
+// Queste azioni sono usate per comunicare con il reducer e indicare quale operazione deve compiere.
+export const {
+  fetchListStatsPlayerStart,
+  fetchListStatsPlayerSuccess,
+  fetchListStatsPlayerFailure,
+  setIsShow,
+  singlePlayerStatsStart,
+  singlePlayerStatsSuccess,
+  singlePlayerStatsFailure,
+  addPlayerStatsStart,
+  addPlayerStatsSuccess,
+  addPlayerStatsFailure,
+  setIsEditStats,
+  editPlayerStatsStart,
+  editPlayerStatsSuccess,
+  editPlayerStatsFailure,
+} = playerStatsSlice.actions;
+
+// Il reducer è la funzione principale che riceve lo stato attuale e un'azione, aggiornando lo stato in base all'azione ricevuta.
+export default playerStatsSlice.reducer;
+
+// const initState = {
+//   listPlayer: [],
+//   listStats: [],
+// };
+
+// createSlice({
+//   name: "stats", // il nome dello slice, utile per distinguere le parti di stato.
+//   initialState: initState, // lo stato iniziale.
+//   reducers: { // gli aggiornamenti di stato definiti tramite funzioni riduttore
+//     addPlayerToList: (state, action) => {
+//       state.listPlayer = "newList"; // questo assegna un new stato e non si puo fare in redux normale
+//  in toolkit si perchè ha sotto il cofano la libreria immer che gestisce limmutabilita per noi
+
+//       // questo muta(aggiorna) lo stato, perche copio
+//       // const newList = [...state.listPlayer] // ciro, pippo
+//       // newList.push(action.payload) // ciro, pippo, pluto
+//       // state.listPlayer = newList // ciro, pippo = // ciro, pippo, pluto
+//     },
+
+//     getPlayerToList: (state, action) => {
+
+//     }
+//   },
+// });

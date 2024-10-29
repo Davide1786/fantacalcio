@@ -21,15 +21,35 @@ async function getAll(req, res) {
   }
 }
 
+// async function getById(req, res) {
+//   console.log(req, "🤣");
+
+//   try {
+//     const id = getIdParam(req);
+//     const stats = await models.statPlayer.findByPk(id);
+//     if (stats) {
+//       res.status(200).json(stats);
+//       console.log(res.status(200).json(stats), "🤣");
+//     } else {
+//       res.status(404).send("404 - Not found");
+//     }
+//   } catch (error) {
+//     console.error("Errore durante il recupero delle statistiche:", error);
+//     res.status(500).json({ error: "Si è verificato un errore durante il recupero delle statistiche" });
+//   }
+// }
+
 async function getById(req, res) {
   try {
-    const id = getIdParam(req);
-    const stats = await models.statPlayer.findByPk(id);
+    const playerId = getIdParam(req); // Ottieni l'ID del giocatore dalla richiesta
+    const stats = await models.statPlayer.findAll({
+      where: { playerId },
+    });
 
-    if (stats) {
-      res.status(200).json(stats);
+    if (stats.length > 0) {
+      res.status(200).json(stats); // Ritorna un array di statistiche
     } else {
-      res.status(404).send("404 - Not found");
+      res.status(404).send("404 - Nessuna statistica trovata per questo giocatore");
     }
   } catch (error) {
     console.error("Errore durante il recupero delle statistiche:", error);
@@ -171,6 +191,7 @@ async function update(req, res) {
     }
 
     await stats.update({
+      id: id,
       match_vote: Number(match_vote),
       average_rating: Number(average_rating),
       injuries,
@@ -186,6 +207,8 @@ async function update(req, res) {
     res.status(200).json({
       message: "Statistiche aggiornate",
       data: {
+        id: id,
+
         match_vote: Number(match_vote),
         average_rating: Number(average_rating),
         injuries,

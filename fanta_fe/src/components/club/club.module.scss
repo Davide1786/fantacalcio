@@ -1,0 +1,202 @@
+.containerPageClub {
+  padding: 20px;
+  border: 1px solid #efefef;
+  border-radius: 12px;
+  background-color: #f7f8fa;
+
+  .wrapperClub {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 1.5fr 2fr 2fr 1fr 1fr;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      display: block;
+    }
+
+    .boxInput {
+      background-color: #ffffff;
+      padding: 10px;
+      grid-column: span 2;
+      border: 1px solid #efefef;
+      border-radius: 12px;
+
+      @media (max-width: 768px) {
+        grid-column: span 1;
+      }
+
+      @media (max-width: 480px) {
+        margin-bottom: 16px;
+      }
+
+      .wrapperTextInput {
+        .boxTest {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 8px;
+
+          @media (min-width: 1440px) {
+            grid-template-columns: repeat(5, 1fr);
+          }
+
+          @media (max-width: 768px) {
+            display: block;
+          }
+
+          .field_container {
+            @media (max-width: 768px) {
+              margin-top: 16px;
+            }
+            @media (max-width: 480px) {
+              margin-top: 16px;
+            }
+            .input {
+              width: 100%;
+            }
+          }
+        }
+      }
+
+      .wrapperBtn {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 8px;
+
+        @media (max-width: 768px) {
+          gap: 4px;
+          justify-content: center;
+          margin: 2rem 0 1rem;
+          flex-direction: column;
+        }
+
+        @media (max-width: 480px) {
+          gap: 4px;
+          justify-content: space-between;
+          font-size: 12px;
+          margin: 2rem 0 1rem;
+        }
+
+        .btn {
+          @media (max-width: 480px) {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    .boxList {
+      background-color: #ffffff;
+      grid-column: span 1; // Occupa 1 colonna
+      border: 1px solid #efefef;
+      border-radius: 12px;
+      padding: 10px;
+      height: 310px;
+      overflow: scroll;
+
+      @media (max-width: 480px) {
+        margin-bottom: 16px;
+      }
+
+      .wrapperListFormClub {
+        .boxListClub {
+          .listClub {
+            list-style-type: none;
+            color: black;
+
+            .singleClub {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+
+              .nameClub {
+                // user-select: none;
+                cursor: pointer;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+
+                .iconClubName {
+                  margin-right: 8px;
+
+                  .icon {
+                    path {
+                      fill: transparent; /* Colore di riempimento */
+                      stroke: #000; /* Colore del contorno */
+                      stroke-width: 15px; /* Spessore del contorno */
+                    }
+                  }
+                }
+              }
+
+              .wrapperBtn {
+                display: flex;
+                justify-content: end;
+
+                .btnEdit {
+                  color: #404040;
+                  min-width: 16px;
+                }
+                .btnInfo {
+                  color: #404040;
+                  min-width: 16px;
+                }
+                .btnDelete {
+                  color: #404040;
+                  min-width: 16px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .boxInfo {
+      grid-column: span 1;
+      border: 1px solid #efefef;
+      border-radius: 12px;
+      padding: 10px;
+      background-color: #ffffff;
+
+      @media (max-width: 480px) {
+        margin-bottom: 16px;
+      }
+
+      .wrapperInfoClub {
+        .infoClub {
+          .nameInfo {
+            border-bottom: 1px solid #efefef;
+            margin-top: 8px;
+
+            span {
+              margin-left: 8px;
+              .valueInfo {
+                margin-left: 4px;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .boxInfoPlayer {
+      grid-column: span 1; // Occupa 1 colonna
+      border: 1px solid #efefef;
+      border-radius: 12px;
+      padding: 10px;
+      background-color: #ffffff;
+
+      // @media (min-width: 1440px) {
+      //   background-color: rgb(44, 2, 41);
+      // }
+      // @media (max-width: 768px) {
+      //   background-color: rgb(219, 30, 77);
+      // }
+      // @media (max-width: 480px) {
+      //   margin-bottom: 16px;
+      // }
+    }
+  }
+}

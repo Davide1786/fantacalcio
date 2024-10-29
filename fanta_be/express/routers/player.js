@@ -106,7 +106,7 @@ async function update(req, res) {
       return res.status(404).json({ message: "Giocatore non trovato!" });
     }
 
-    const foundClub = await models.club.findOne({ where: { name: clubName } });
+    const foundClub = await models.club.findOne({ where: { id: clubName } });
 
     if (!foundClub) {
       return res.status(404).json({ error: "Club non trovato" });
