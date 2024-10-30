@@ -138,7 +138,7 @@ const Club = () => {
       <Grid className={style.wrapperClub}>
         <Grid className={style.boxInput}>
           <Typography variant="h6" component="h2">
-            Crea un club
+            Crea club
           </Typography>
 
           <Grid className={style.wrapperTextInput}>
@@ -219,7 +219,7 @@ const Club = () => {
               Pulisci campi
             </Button>
             <Button onClick={sendData} variant="contained" className={style.btn}>
-              {editClub ? "Salva modifica" : "Crea nuovo Club"}
+              {editClub ? "Salva modifica" : "Crea Club"}
             </Button>
           </Grid>
         </Grid>

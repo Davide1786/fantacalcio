@@ -14,13 +14,13 @@ ciascun file contiene le funzioni per gestire le operazioni su queste entità
 (come ottenere, creare, aggiornare o eliminare dati).
 */
 const routes = {
-  user: require("./routers/user"),
-  club: require("./routers/club"),
-  goal: require("./routers/goal"),
-  league: require("./routers/league"),
-  player: require("./routers/player"),
-  playerStats: require("./routers/playerStats"),
-  team: require("./routers/team"),
+  user: require("./routes/user"),
+  club: require("./routes/club"),
+  goal: require("./routes/goal"),
+  league: require("./routes/league"),
+  player: require("./routes/player"),
+  playerStats: require("./routes/playerStats"),
+  team: require("./routes/team"),
 };
 
 // crea istanza di express. ora posso accedere a tutti i metodi

@@ -84,7 +84,7 @@ const playerStatsSlice = createSlice({
     status: "idle": Indica lo stato iniziale (inattivo).
     error: null: Nessun errore iniziale.
   */
-  initialState: { data: [], isShowCardStats: false, isEditStats: { id: "", boolean: true }, singlePlayerStats: [], status: "idle", error: null },
+  initialState: { data: [], isShowCardStats: false, isEditStats: { id: "", boolean: true }, selectedPlayerStatsId: null, status: "idle", error: null },
   reducers: {
     // ============== show ======================
     setIsShow: (state, action) => {
@@ -92,6 +92,9 @@ const playerStatsSlice = createSlice({
     },
     setIsEditStats: (state, action) => {
       state.isEditStats = { id: action.payload.id, boolean: action.payload.boolean };
+    },
+    setSelectedPlayerStatsId: (state, action) => {
+      state.selectedPlayerStatsId = action.payload;
     },
     // ============================== RECUPERA LISTA STATISTICHE =========================
     // Funzioni che modificano lo stato della slice in base alle azioni.
@@ -129,7 +132,7 @@ const playerStatsSlice = createSlice({
     },
     editPlayerStatsSuccess: (state, action) => {
       state.status = "succeeded";
-      state.data = state.data.map((stats) => (stats.id === action.payload.data.id ? action.payload.data : stats));
+      state.data = state.data.map((stats) => (stats.id === action.payload.data.id ? { ...stats, ...action.payload.data } : stats));
       state.isEditStats = { id: "", boolean: false };
     },
     editPlayerStatsFailure: (state, action) => {
@@ -167,6 +170,7 @@ export const {
   editPlayerStatsStart,
   editPlayerStatsSuccess,
   editPlayerStatsFailure,
+  setSelectedPlayerStatsId,
 } = playerStatsSlice.actions;
 
 // Il reducer è la funzione principale che riceve lo stato attuale e un'azione, aggiornando lo stato in base all'azione ricevuta.

@@ -4,16 +4,21 @@
   border-radius: 12px;
   background-color: #f7f8fa;
   margin: 12px 0;
+  max-height: 300px;
+  height: 100%;
 
   @media (max-width: 768px) {
     width: 100%;
   }
-  .wrapperPlayerStats {
-    display: grid;
-    grid-template-columns: 1fr;
-    // grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
 
+  .wrapperPlayerStats {
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    padding: 10px;
+    overflow-x: scroll;
     @media (max-width: 768px) {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -22,198 +27,86 @@
       display: block;
     }
 
-    .boxInput {
-      background-color: #ffffff;
-      padding: 10px;
-      // grid-column: span 2;
-      border: 1px solid #efefef;
-      border-radius: 12px;
+    .boxTitle {
+      width: 100%;
+    }
 
-      @media (max-width: 768px) {
-        grid-column: span 1;
-      }
+    .boxInfo {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      height: calc(100% - 40px);
 
-      @media (max-width: 768px) {
-        margin-bottom: 16px;
-      }
-
-      .boxCard {
+      .boxInput {
+        background-color: #ffffff;
         padding: 10px;
         border: 1px solid #efefef;
         border-radius: 12px;
-
-        // .namePlayer {}
-        // .age {}
-        // .nationality {}
-        // .role {}
-        // .price_player{}
-        // .info{}
-        // .nameClub {}
-
-        .namePlayer,
-        .match_vote,
-        .average_rating,
-        .number_goal,
-        .number_assist,
-        .number_goal_conceded,
-        .red_card,
-        .yellow_card,
-        .number_of_match,
-        .available_for_selection,
-        .injuries,
-        .nameClub {
-          color: black;
-          span {
-          }
-        }
-      }
-
-      .wrapperTextInput {
-        .boxText {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-          gap: 8px;
-
-          @media (min-width: 1440px) {
-            grid-template-columns: repeat(5, 1fr);
-          }
-
-          @media (max-width: 768px) {
-            display: block;
-          }
-          .field_container {
-            @media (max-width: 768px) {
-              margin-top: 16px;
-            }
-            @media (max-width: 768px) {
-              margin-top: 16px;
-            }
-            .input {
-              width: 100%;
-            }
-          }
-        }
-      }
-
-      .wrapperBtn {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 8px;
-
-        @media (max-width: 768px) {
-          gap: 4px;
-          justify-content: center;
-          margin: 2rem 0 1rem;
-          flex-direction: column;
-        }
-
-        @media (max-width: 768px) {
-          gap: 4px;
-          justify-content: space-between;
-          font-size: 12px;
-          margin: 2rem 0 1rem;
-        }
-
-        .btn {
-          @media (max-width: 768px) {
-            font-size: 12px;
-          }
-        }
-      }
-    }
-
-    .boxList {
-      background-color: #ffffff;
-      grid-column: span 3; // Occupa 1 colonna
-      border: 1px solid #efefef;
-      border-radius: 12px;
-      padding: 10px;
-
-      @media (max-width: 1024px) {
-        margin-bottom: 16px;
-
+        min-width: 600px;
+        max-width: 600px;
         width: 100%;
-        overflow: scroll;
-      }
-      .wrapperListPlayer {
-        @media (max-width: 1024px) {
-          width: 100%;
+
+        @media (max-width: 768px) {
+          grid-column: span 1;
         }
-        .boxListPlayer {
-          border-bottom: 1px solid #efefef;
-          @media (max-width: 1024px) {
-            width: 100vw;
-            width: calc(100vw - 10px);
-          }
 
-          .listPlayer {
-            list-style-type: none;
-            color: black;
-            @media (max-width: 1024px) {
-              width: 100vw;
-            }
+        @media (max-width: 768px) {
+          margin-bottom: 16px;
+        }
 
-            .singlePlayer {
-              display: grid;
-              grid-template-columns: repeat(4, 1fr);
-              grid-template-columns: 2fr 2fr 2fr 1fr;
+        .boxCard {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          justify-content: space-between;
+          .boxCardInternal {
+            display: flex;
+            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 
-              .namePlayer {
-                display: grid;
-                cursor: pointer;
-                grid-column: span 3;
-                grid-template-columns: 16px minmax(100px, 1fr) minmax(100px, 1fr) minmax(100px, 1fr);
-
-                @media (max-width: 1024px) {
-                  width: calc(100vw - 80px);
-                }
-
-                .icon {
-                  border-left: 1px solid #efefef;
-                  width: 100%;
-                  cursor: auto;
-                }
-                .nameSurname {
-                  border-left: 1px solid #efefef;
-                  border-right: 1px solid #efefef;
-                  padding: 0 8px;
-                }
-                .role {
-                  border-right: 1px solid #efefef;
-                  padding: 0 8px;
-                  cursor: auto;
-                }
-                .club {
-                  border-right: 1px solid #efefef;
-                  padding: 0 8px;
-                  cursor: auto;
+            .match_vote,
+            .average_rating,
+            .number_goal,
+            .number_assist,
+            .number_goal_conceded,
+            .red_card,
+            .yellow_card,
+            .number_of_match,
+            .available_for_selection,
+            .injuries {
+              span {
+                color: black;
+                .nameStats {
+                  margin-left: 4px;
                 }
               }
+            }
+          }
 
-              .wrapperBtn {
-                grid-column: span 1;
-                display: flex;
-                justify-content: end;
+          .wrapperBtn {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 8px;
 
-                @media (max-width: 1024px) {
-                  width: 70px;
-                  padding-right: 10px;
-                  border-right: 1px solid #efefef;
-                }
+            @media (max-width: 768px) {
+              gap: 4px;
+              justify-content: center;
+              margin: 2rem 0 1rem;
+              flex-direction: column;
+            }
 
-                .btnEdit {
-                  color: #404040;
-                  min-width: 16px;
-                }
-                .btnInfo {
-                  color: #404040;
-                  min-width: 16px;
-                }
-                .btnDelete {
-                  color: #404040;
-                  min-width: 16px;
-                }
+            @media (max-width: 768px) {
+              gap: 4px;
+              justify-content: space-between;
+              font-size: 12px;
+              margin: 2rem 0 1rem;
+            }
+
+            .btn {
+              @media (max-width: 768px) {
+                font-size: 12px;
               }
             }
           }

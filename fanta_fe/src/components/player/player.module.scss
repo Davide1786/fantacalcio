@@ -36,58 +36,67 @@
       @media (max-width: 768px) {
         margin-bottom: 16px;
       }
-      .wrapperTextInput {
-        .boxText {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-          gap: 8px;
 
-          @media (min-width: 1440px) {
-            grid-template-columns: repeat(5, 1fr);
+      .statsInput,
+      .playerInput {
+        margin-bottom: 30px;
+
+        .wrapperTextInput {
+          .boxText {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+
+            @media (min-width: 1440px) {
+              grid-template-columns: repeat(5, 1fr);
+            }
+
+            @media (max-width: 768px) {
+              display: block;
+            }
+            .field_container {
+              @media (max-width: 768px) {
+                margin-top: 16px;
+              }
+              @media (max-width: 768px) {
+                margin-top: 16px;
+              }
+              .input {
+                width: 100%;
+              }
+            }
+          }
+        }
+        .wrapperBtn {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-top: 8px;
+
+          @media (max-width: 768px) {
+            gap: 4px;
+            justify-content: center;
+            margin: 2rem 0 1rem;
+            flex-direction: column;
           }
 
           @media (max-width: 768px) {
-            display: block;
+            gap: 4px;
+            justify-content: space-between;
+            font-size: 12px;
+            margin: 2rem 0 1rem;
           }
-          .field_container {
+
+          .btn {
             @media (max-width: 768px) {
-              margin-top: 16px;
-            }
-            @media (max-width: 768px) {
-              margin-top: 16px;
-            }
-            .input {
-              width: 100%;
+              font-size: 12px;
             }
           }
         }
       }
 
-      .wrapperBtn {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 8px;
-
-        @media (max-width: 768px) {
-          gap: 4px;
-          justify-content: center;
-          margin: 2rem 0 1rem;
-          flex-direction: column;
-        }
-
-        @media (max-width: 768px) {
-          gap: 4px;
-          justify-content: space-between;
-          font-size: 12px;
-          margin: 2rem 0 1rem;
-        }
-
-        .btn {
-          @media (max-width: 768px) {
-            font-size: 12px;
-          }
-        }
+      .statsInput {
+        margin-bottom: 0;
       }
     }
 

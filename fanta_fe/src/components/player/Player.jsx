@@ -27,6 +27,7 @@ import {
   editPlayerStatsStart,
   editPlayerStatsSuccess,
   editPlayerStatsFailure,
+  setSelectedPlayerStatsId,
 } from "../../../store/reducer/statsPlayer.reducer";
 import style from "./player.module.scss";
 import Grid from "@mui/material/Grid2";
@@ -35,7 +36,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan, faPerson, faChartColumn } from "@fortawesome/free-solid-svg-icons";
 
 const Player = () => {
-  const { isShowCardStats, singlePlayerStats, isEditStats } = useSelector((state) => state.statsPlayers);
+  const { isShowCardStats, singlePlayerStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
   const { playerList, statsPlayers } = useSelector((state) => state.player);
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
 
@@ -70,7 +71,7 @@ const Player = () => {
   const [editPlayerStats, setEditPlayerStats] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedClubId, setSelectedClubId] = useState(""); // ID del club selezionato
-  const [selectedPlayerStatsId, setSelectedPlayerStatsId] = useState(""); // ID del club selezionato
+  // const [selectedPlayerStatsId, setSelectedPlayerStatsId] = useState(""); // ID del club selezionato
   const [oldIdStats, setOldIdStats] = useState(null);
   // api
   const fetchPlayers = () => async () => {
@@ -155,7 +156,7 @@ const Player = () => {
   useEffect(() => {
     if (isEditStats.boolean && isEditStats.id) {
       setCurrentPlayerStats(isEditStats.id);
-      setSelectedPlayerStatsId(isEditStats.id.playerId); // Assicurati di passare l'ID corretto
+      // dispatch(setSelectedPlayerStatsId(isEditStats.id?.playerId));
       setEditPlayerStats(true);
     }
   }, [isEditStats]);
@@ -215,7 +216,7 @@ const Player = () => {
         playerSurname: selectedStats.surname,
         playerId: selectedPlayerStatsId,
       }));
-      setSelectedPlayerStatsId(selectedPlayerStatsId);
+      dispatch(setSelectedPlayerStatsId(selectedPlayerStatsId));
     }
   };
 
@@ -224,11 +225,13 @@ const Player = () => {
       if (editPlayerStats) {
         dispatch(editStats(currentPlayerStats));
         setIsUpdating(true);
+      } else if (editPlayerStats && isEditStats.boolean) {
+        dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       } else {
         dispatch(addStats(currentPlayerStats));
         setIsUpdating(true);
       }
-      setSelectedPlayerStatsId("");
+      dispatch(setSelectedPlayerStatsId(null));
       setCurrentPlayerStats({
         match_vote: "",
         average_rating: "",
@@ -243,9 +246,11 @@ const Player = () => {
         playerName: "",
         playerSurname: "",
       });
+      setEditPlayerStats(false);
     } catch (error) {
       console.error("Errore durante l'invio dei dati:", error);
     }
+    console.log("Errore durante l'invio dei dati:", selectedPlayerStatsId);
   };
 
   const togglePlayersList = (player) => {
@@ -275,7 +280,8 @@ const Player = () => {
     if (editPlayerStats) {
       setEditPlayerStats(false);
 
-      setSelectedPlayerStatsId("");
+      dispatch(setSelectedPlayerStatsId(null));
+
       setCurrentPlayerStats({
         match_vote: "",
         average_rating: "",
@@ -291,7 +297,9 @@ const Player = () => {
         playerSurname: "",
       });
     }
-    setSelectedPlayerStatsId("");
+
+    dispatch(setSelectedPlayerStatsId(null));
+
     setCurrentPlayerStats({
       match_vote: "",
       average_rating: "",
@@ -319,258 +327,263 @@ const Player = () => {
     <Grid className={style.containerPagePlayer}>
       <Grid className={style.wrapperPlayer}>
         <Grid className={style.boxInput}>
-          <Typography variant="h6" component="h2">
-            Crea giocatore
-          </Typography>
+          <Grid className={style.playerInput}>
+            <Typography variant="h6" component="h2">
+              Crea giocatore
+            </Typography>
 
-          <Grid className={style.wrapperTextInput}>
-            <Grid className={style.boxText}>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="name"
-                  label="Nome"
-                  variant="outlined"
-                  value={currentPlayer.name}
-                  onChange={(e) => setCurrentPlayer({ ...currentPlayer, name: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="surname"
-                  label="Cognome"
-                  variant="outlined"
-                  value={currentPlayer.surname}
-                  onChange={(e) => setCurrentPlayer({ ...currentPlayer, surname: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="age"
-                  label="Età"
-                  variant="outlined"
-                  value={currentPlayer.age}
-                  onChange={(e) => setCurrentPlayer({ ...currentPlayer, age: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="nationality"
-                  label="Nazionalità"
-                  variant="outlined"
-                  value={currentPlayer.nationality}
-                  onChange={(e) => setCurrentPlayer({ ...currentPlayer, nationality: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="role"
-                  label="Ruolo"
-                  variant="outlined"
-                  value={currentPlayer.role}
-                  onChange={(e) => setCurrentPlayer({ ...currentPlayer, role: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="price_player"
-                  label="Prezzo"
-                  variant="outlined"
-                  value={currentPlayer.price_player}
-                  onChange={(e) => setCurrentPlayer({ ...currentPlayer, price_player: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="info"
-                  label="Info"
-                  variant="outlined"
-                  value={currentPlayer.info}
-                  onChange={(e) => setCurrentPlayer({ ...currentPlayer, info: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">Club</InputLabel>
-                  <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedClubId} label="Club" onChange={handleChange}>
-                    {clubList.map((club) => (
-                      <MenuItem key={club.id} value={club.id}>
-                        {club.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+            <Grid className={style.wrapperTextInput}>
+              <Grid className={style.boxText}>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="name"
+                    label="Nome"
+                    variant="outlined"
+                    value={currentPlayer.name}
+                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, name: e.target.value })}
+                  />
+                </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="surname"
+                    label="Cognome"
+                    variant="outlined"
+                    value={currentPlayer.surname}
+                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, surname: e.target.value })}
+                  />
+                </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="age"
+                    label="Età"
+                    variant="outlined"
+                    value={currentPlayer.age}
+                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, age: e.target.value })}
+                  />
+                </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="nationality"
+                    label="Nazionalità"
+                    variant="outlined"
+                    value={currentPlayer.nationality}
+                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, nationality: e.target.value })}
+                  />
+                </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="role"
+                    label="Ruolo"
+                    variant="outlined"
+                    value={currentPlayer.role}
+                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, role: e.target.value })}
+                  />
+                </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="price_player"
+                    label="Prezzo"
+                    variant="outlined"
+                    value={currentPlayer.price_player}
+                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, price_player: e.target.value })}
+                  />
+                </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="info"
+                    label="Info"
+                    variant="outlined"
+                    value={currentPlayer.info}
+                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, info: e.target.value })}
+                  />
+                </Grid>
+                <Grid className={style.field_container}>
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Club</InputLabel>
+                    <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedClubId} label="Club" onChange={handleChange}>
+                      {clubList.map((club) => (
+                        <MenuItem key={club.id} value={club.id}>
+                          {club.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
 
-          <Grid className={style.wrapperBtn}>
-            <Button onClick={clean} variant="contained" className={style.btn}>
-              Pulisci campi
-            </Button>
-            <Button onClick={sendData} variant="contained" className={style.btn}>
-              {editPlayer ? "Salva modifica" : "Crea giocatore"}
-            </Button>
+            <Grid className={style.wrapperBtn}>
+              <Button onClick={clean} variant="contained" className={style.btn}>
+                Pulisci campi
+              </Button>
+              <Button onClick={sendData} variant="contained" className={style.btn}>
+                {editPlayer ? "Salva modifica" : "Crea giocatore"}
+              </Button>
+            </Grid>
           </Grid>
 
           {/* =========================== Crea statistiche giocatore */}
-          <Typography variant="h6" component="h2">
-            Crea statistiche giocatore
-          </Typography>
+          <Grid className={style.statsInput}>
+            <Typography variant="h6" component="h2">
+              Crea statistiche giocatore
+            </Typography>
 
-          <Grid className={style.wrapperTextInput}>
-            <Grid className={style.boxText}>
-              <Grid className={style.field_container}>
-                <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">Giocatore</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={selectedPlayerStatsId}
-                    label="Giocatore"
-                    onChange={handleChangeStatsPlayer}>
-                    {playerList.map((player) => (
-                      <MenuItem key={player.id} value={player.id}>
-                        {player.name + " " + player.surname}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+            <Grid className={style.wrapperTextInput}>
+              <Grid className={style.boxText}>
+                <Grid className={style.field_container}>
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Giocatore</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={selectedPlayerStatsId || ""}
+                      label="Giocatore"
+                      onChange={handleChangeStatsPlayer}>
+                      {playerList.map((player) => (
+                        <MenuItem key={player.id} value={player.id}>
+                          {player.name + " " + player.surname}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="votoPartita"
-                  label="Voto Partita"
-                  variant="outlined"
-                  value={currentPlayerStats.match_vote !== undefined ? currentPlayerStats.match_vote : ""}
-                  onChange={handleChangeStats("match_vote")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="votoPartita"
+                    label="Voto Partita"
+                    variant="outlined"
+                    value={currentPlayerStats.match_vote !== undefined ? currentPlayerStats.match_vote : ""}
+                    onChange={handleChangeStats("match_vote")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="mediaVoto"
-                  label="Media Voto"
-                  variant="outlined"
-                  value={currentPlayerStats.average_rating !== undefined ? currentPlayerStats.average_rating : ""}
-                  onChange={handleChangeStats("average_rating")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="mediaVoto"
+                    label="Media Voto"
+                    variant="outlined"
+                    value={currentPlayerStats.average_rating !== undefined ? currentPlayerStats.average_rating : ""}
+                    onChange={handleChangeStats("average_rating")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="golFatti"
-                  label="Gol Fatti"
-                  variant="outlined"
-                  value={currentPlayerStats.number_goal !== undefined ? currentPlayerStats.number_goal : ""}
-                  onChange={handleChangeStats("number_goal")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="golFatti"
+                    label="Gol Fatti"
+                    variant="outlined"
+                    value={currentPlayerStats.number_goal !== undefined ? currentPlayerStats.number_goal : ""}
+                    onChange={handleChangeStats("number_goal")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="assist"
-                  label="Assist"
-                  variant="outlined"
-                  value={currentPlayerStats.number_assist !== undefined ? currentPlayerStats.number_assist : ""}
-                  onChange={handleChangeStats("number_assist")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="assist"
+                    label="Assist"
+                    variant="outlined"
+                    value={currentPlayerStats.number_assist !== undefined ? currentPlayerStats.number_assist : ""}
+                    onChange={handleChangeStats("number_assist")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="golSubiti"
-                  label="Gol Subiti"
-                  variant="outlined"
-                  value={currentPlayerStats.number_goal_conceded !== undefined ? currentPlayerStats.number_goal_conceded : ""}
-                  onChange={handleChangeStats("number_goal_conceded")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="golSubiti"
+                    label="Gol Subiti"
+                    variant="outlined"
+                    value={currentPlayerStats.number_goal_conceded !== undefined ? currentPlayerStats.number_goal_conceded : ""}
+                    onChange={handleChangeStats("number_goal_conceded")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="redCard"
-                  label="Cartellini rossi"
-                  variant="outlined"
-                  value={currentPlayerStats.red_card !== undefined ? currentPlayerStats.red_card : ""}
-                  onChange={handleChangeStats("red_card")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="redCard"
+                    label="Cartellini rossi"
+                    variant="outlined"
+                    value={currentPlayerStats.red_card !== undefined ? currentPlayerStats.red_card : ""}
+                    onChange={handleChangeStats("red_card")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="yellowCard"
-                  label="Cartellini gialli"
-                  variant="outlined"
-                  value={currentPlayerStats.yellow_card !== undefined ? currentPlayerStats.yellow_card : ""}
-                  onChange={handleChangeStats("yellow_card")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="yellowCard"
+                    label="Cartellini gialli"
+                    variant="outlined"
+                    value={currentPlayerStats.yellow_card !== undefined ? currentPlayerStats.yellow_card : ""}
+                    onChange={handleChangeStats("yellow_card")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="partiteGiocate"
-                  label="Partite Giocate"
-                  variant="outlined"
-                  value={currentPlayerStats.number_of_match !== undefined ? currentPlayerStats.number_of_match : ""}
-                  onChange={handleChangeStats("number_of_match")}
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="partiteGiocate"
+                    label="Partite Giocate"
+                    variant="outlined"
+                    value={currentPlayerStats.number_of_match !== undefined ? currentPlayerStats.number_of_match : ""}
+                    onChange={handleChangeStats("number_of_match")}
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <FormControlLabel
-                  control={<Checkbox checked={currentPlayerStats.available_for_selection ?? false} onChange={handleChangeStats("available_for_selection")} />}
-                  label="Disponibilita Partita"
-                />
-              </Grid>
+                <Grid className={style.field_container}>
+                  <FormControlLabel
+                    control={<Checkbox checked={currentPlayerStats.available_for_selection ?? false} onChange={handleChangeStats("available_for_selection")} />}
+                    label="Disponibilita Partita"
+                  />
+                </Grid>
 
-              <Grid className={style.field_container}>
-                <FormControlLabel
-                  control={<Checkbox checked={currentPlayerStats.injuries ?? false} onChange={handleChangeStats("injuries")} />}
-                  label="Infortunato"
-                />
+                <Grid className={style.field_container}>
+                  <FormControlLabel
+                    control={<Checkbox checked={currentPlayerStats.injuries ?? false} onChange={handleChangeStats("injuries")} />}
+                    label="Infortunato"
+                  />
+                </Grid>
               </Grid>
+            </Grid>
+
+            <Grid className={style.wrapperBtn}>
+              <Button onClick={cleanStats} variant="contained" className={style.btn}>
+                Pulisci campi
+              </Button>
+              <Button onClick={sendDataStat} variant="contained" className={style.btn}>
+                {editPlayerStats ? "Salva modifica" : "Crea statistica"}
+              </Button>
             </Grid>
           </Grid>
 
-          <Grid className={style.wrapperBtn}>
-            <Button onClick={cleanStats} variant="contained" className={style.btn}>
-              Pulisci campi
-            </Button>
-            <Button onClick={sendDataStat} variant="contained" className={style.btn}>
-              {editPlayerStats ? "Salva modifica" : "Crea statistica"}
-            </Button>
-          </Grid>
           {/* =========================== Crea statistiche giocatore */}
         </Grid>
 

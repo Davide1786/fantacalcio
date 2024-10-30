@@ -163,10 +163,59 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
       styleOverrides: {
         root: {
           fontSize: ".8rem",
-          // color: "red",
+
+          // SELECT LABEL
+          "&.MuiInputLabel-sizeMedium": {
+            top: "-5px",
+          },
+          "&.MuiInputLabel-sizeMedium.Mui-focused": {
+            top: "0px", // Ritorna a top: 0 quando è in focus
+          },
         },
       },
     },
+
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          minHeight: "40px", // Altezza minima
+          padding: "8px 14px", // Padding interno
+          padding: "0 10px", // Padding interno
+        },
+        icon: {
+          color: "#2ABF89", // Colore dell'icona di selezione (freccia)
+        },
+      },
+    },
+
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          padding: "10px 20px", // Padding dei singoli elementi del menu
+        },
+      },
+    },
+
+    // MuiInputLabel: {
+    //   styleOverrides: {
+    //     root: {
+    //       fontSize: ".8rem",
+
+    //       // "& .MuiInputLabel-root": {
+    //       //   top: "-5px", // Modifica solo per le etichette di Select
+    //       // },
+
+    //       // top: "-5px", // Imposta il valore 'top' desiderato
+    //       // Puoi aggiungere altre proprietà di stile qui
+    //     },
+    //     outlined: {
+    //       top: "-10px", // Modifica specifica per il tipo "outlined"
+    //       // "& .MuiInputLabel-root": {
+    //       //   top: "-15px", // Modifica solo per le etichette di Select
+    //       // },
+    //     },
+    //   },
+    // },
 
     MuiTextField: {
       styleOverrides: {
