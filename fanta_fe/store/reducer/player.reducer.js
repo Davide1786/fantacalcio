@@ -45,7 +45,7 @@ const playerSlice = createSlice({
       // Aggiorna il player nella lista dei player
       state.status = "succeeded";
       state.playerList = state.playerList.map((player) => (player.id === action.payload.id ? action.payload : player));
-      state.selectedClub = action.payload; // Aggiorna anche il singolo player selezionato
+      // state.selectedClub = action.payload; // Aggiorna anche il singolo player selezionato
     },
     updatePlayerFailure: (state, action) => {
       state.status = "failed";

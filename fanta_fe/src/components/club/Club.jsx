@@ -23,6 +23,8 @@ import {
 
 const Club = () => {
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
+  const { playerList, statsPlayers } = useSelector((state) => state.player);
+
   const [selectedClubId, setSelectedClubId] = useState(null);
   const [currentClub, setCurrentClub] = useState({
     name: "",
@@ -37,6 +39,8 @@ const Club = () => {
   const dispatch = useDispatch();
 
   const fetchClub = (payload) => async (dispatch) => {
+    console.log("sei partito???");
+
     dispatch(fetchSingleClubStart());
     try {
       const responseData = await fetchSingleClub(payload);
@@ -82,6 +86,12 @@ const Club = () => {
   }, []);
 
   useEffect(() => {
+    if (selectedClubId) {
+      dispatch(fetchClub(selectedClubId.id));
+    }
+  }, [playerList]);
+
+  useEffect(() => {
     if (isUpdating) {
       setIsUpdating(false);
       dispatch(fetchClubs());
@@ -94,6 +104,7 @@ const Club = () => {
       if (editClub) {
         dispatch(updateClub(currentClub));
         setIsUpdating(true);
+        setShowInfoClub(currentClub);
       } else {
         dispatch(addedClub(currentClub));
         setIsUpdating(true);
@@ -117,6 +128,8 @@ const Club = () => {
   };
 
   const togglePlayersList = (club) => {
+    console.log(club, "cli");
+
     if (selectedClubId?.id === club.id) {
       setSelectedClubId(null);
     } else {

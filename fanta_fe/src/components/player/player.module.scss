@@ -114,6 +114,9 @@
         overflow: scroll;
       }
       .wrapperListPlayer {
+        max-height: 400px;
+        height: 100%;
+        overflow: scroll;
         @media (max-width: 1024px) {
           width: 100%;
         }

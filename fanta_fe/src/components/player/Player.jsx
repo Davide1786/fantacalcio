@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchListPlayer, fetchPlayerStats, addSinglePlayer, updateSinglePlayer, fetchPlayerSingleStats, addStatsPlayer, editStatsPlayer } from "../../api/api";
+import { fetchListPlayer, addSinglePlayer, updateSinglePlayer, fetchPlayerSingleStats, addStatsPlayer, editStatsPlayer } from "../../api/api";
 import {
   fetchListPlayerStart,
   fetchListPlayerSuccess,
@@ -13,9 +13,6 @@ import {
   addNewPlayerFailure,
 } from "../../../store/reducer/player.reducer";
 import {
-  fetchListStatsPlayerStart,
-  fetchListStatsPlayerSuccess,
-  fetchListStatsPlayerFailure,
   setIsShow,
   singlePlayerStatsStart,
   singlePlayerStatsSuccess,
@@ -23,7 +20,6 @@ import {
   addPlayerStatsStart,
   addPlayerStatsSuccess,
   addPlayerStatsFailure,
-  setIsEditStats,
   editPlayerStatsStart,
   editPlayerStatsSuccess,
   editPlayerStatsFailure,
@@ -41,6 +37,7 @@ const Player = () => {
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
 
   const dispatch = useDispatch();
+
   const [currentPlayer, setCurrentPlayer] = useState({
     name: "",
     surname: "",
@@ -67,11 +64,18 @@ const Player = () => {
     playerName: "",
     playerSurname: "",
   });
+
+  const rolesForSelect = [
+    { id: "portiere", name: "Portiere" },
+    { id: "difensore", name: "Difensore" },
+    { id: "mediano", name: "Mediano" },
+    { id: "attaccante", name: "Attaccante" },
+  ];
+
   const [editPlayer, setEditPlayer] = useState(false);
   const [editPlayerStats, setEditPlayerStats] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedClubId, setSelectedClubId] = useState(""); // ID del club selezionato
-  // const [selectedPlayerStatsId, setSelectedPlayerStatsId] = useState(""); // ID del club selezionato
   const [oldIdStats, setOldIdStats] = useState(null);
   // api
   const fetchPlayers = () => async () => {
@@ -199,6 +203,7 @@ const Player = () => {
       }
       setSelectedClubId("");
       setCurrentPlayer({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
+      setEditPlayer(false);
     } catch (error) {
       console.error("Errore durante l'invio dei dati:", error);
     }
@@ -323,6 +328,15 @@ const Player = () => {
     setCurrentPlayerStats((prevStats) => ({ ...prevStats, [field]: value }));
   };
 
+  // click select edit role player
+  const handleChangeRole = (event) => {
+    const selectedRoleId = event.target.value;
+    setCurrentPlayer((prevPlayer) => ({
+      ...prevPlayer,
+      role: selectedRoleId, // Aggiorna il ruolo del giocatore
+    }));
+  };
+
   return (
     <Grid className={style.containerPagePlayer}>
       <Grid className={style.wrapperPlayer}>
@@ -379,15 +393,21 @@ const Player = () => {
                   />
                 </Grid>
                 <Grid className={style.field_container}>
-                  <TextField
-                    size="small"
-                    className={style.input}
-                    id="role"
-                    label="Ruolo"
-                    variant="outlined"
-                    value={currentPlayer.role}
-                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, role: e.target.value })}
-                  />
+                  <FormControl fullWidth>
+                    <InputLabel id="demo-simple-select-label">Ruolo</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={currentPlayer.role} // Usa il valore di currentPlayer.role
+                      label="Ruolo"
+                      onChange={handleChangeRole}>
+                      {rolesForSelect.map((role) => (
+                        <MenuItem key={role.id} value={role.id}>
+                          {role.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
                 <Grid className={style.field_container}>
                   <TextField

@@ -145,7 +145,8 @@ const playerStatsSlice = createSlice({
     },
     addPlayerStatsSuccess: (state, action) => {
       state.status = "succeeded";
-      state.data = action.payload;
+      // prendi tutte le vecchie e aggiungici anche la nuova!
+      state.data = [...state.data, action.payload];
     },
     addPlayerStatsFailure: (state, action) => {
       state.status = "failed";

@@ -159,6 +159,7 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
         },
       },
     },
+
     MuiInputLabel: {
       styleOverrides: {
         root: {
@@ -171,6 +172,9 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
           "&.MuiInputLabel-sizeMedium.Mui-focused": {
             top: "0px", // Ritorna a top: 0 quando è in focus
           },
+          "&.MuiInputLabel-shrink": {
+            top: "0",
+          },
         },
       },
     },
@@ -179,8 +183,9 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
       styleOverrides: {
         select: {
           minHeight: "40px", // Altezza minima
-          padding: "8px 14px", // Padding interno
           padding: "0 10px", // Padding interno
+          position: "relative",
+          transform: "translateY(20%)",
         },
         icon: {
           color: "#2ABF89", // Colore dell'icona di selezione (freccia)
