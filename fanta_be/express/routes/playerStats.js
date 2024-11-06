@@ -21,24 +21,6 @@ async function getAll(req, res) {
   }
 }
 
-// async function getById(req, res) {
-//   console.log(req, "🤣");
-
-//   try {
-//     const id = getIdParam(req);
-//     const stats = await models.statPlayer.findByPk(id);
-//     if (stats) {
-//       res.status(200).json(stats);
-//       console.log(res.status(200).json(stats), "🤣");
-//     } else {
-//       res.status(404).send("404 - Not found");
-//     }
-//   } catch (error) {
-//     console.error("Errore durante il recupero delle statistiche:", error);
-//     res.status(500).json({ error: "Si è verificato un errore durante il recupero delle statistiche" });
-//   }
-// }
-
 async function getById(req, res) {
   try {
     const playerId = getIdParam(req); // Ottieni l'ID del giocatore dalla richiesta
@@ -131,7 +113,6 @@ async function create(req, res) {
 
 async function update(req, res) {
   const id = getIdParam(req);
-
   const {
     match_vote,
     average_rating,
@@ -143,48 +124,45 @@ async function update(req, res) {
     number_goal_conceded,
     number_goal,
     number_assist,
-    playerName,
-    playerSurname,
+    playerId, // ora usiamo playerId
   } = req.body;
 
   if (req.body.id !== id) {
-    return res.status(400).send(`
-      Richiesta non valida: l'ID del parametro (${id}) non corrisponde all'ID del corpo
-    (${req.body.id}).`);
+    return res.status(400).send(`Richiesta non valida: l'ID del parametro (${id}) non corrisponde all'ID del corpo (${req.body.id}).`);
   }
 
   try {
-    if (
-      match_vote === undefined ||
-      average_rating === undefined ||
-      injuries === undefined ||
-      red_card === undefined ||
-      yellow_card === undefined ||
-      available_for_selection === undefined ||
-      number_of_match === undefined ||
-      number_goal_conceded === undefined ||
-      number_goal === undefined ||
-      number_assist === undefined ||
-      playerName === undefined ||
-      playerSurname === undefined
-    ) {
-      return res.status(400).json({ message: "Tutti i campi sono obbligatori" });
+    // Array dei campi obbligatori, ora senza playerName e playerSurname
+    const requiredFields = [
+      "match_vote",
+      "average_rating",
+      "injuries",
+      "red_card",
+      "yellow_card",
+      "available_for_selection",
+      "number_of_match",
+      "number_goal_conceded",
+      "number_goal",
+      "number_assist",
+      "playerId",
+    ];
+
+    // Verifica i campi mancanti
+    const missingFields = requiredFields.filter((field) => req.body[field] === undefined);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: "Tutti i campi sono obbligatori",
+        missingFields,
+      });
     }
 
     const stats = await models.statPlayer.findByPk(id);
-
     if (!stats) {
       return res.status(400).json({ message: "Statistica non trovata!" });
     }
 
-    const foundPlayer = await models.player.findOne({
-      where: {
-        [Op.and]: [
-          Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("name")), "LIKE", `%${playerName.toLowerCase()}%`),
-          Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("surname")), "LIKE", `%${playerSurname.toLowerCase()}%`),
-        ],
-      },
-    });
+    const foundPlayer = await models.player.findByPk(playerId); // cerca il giocatore con playerId
 
     if (!foundPlayer) {
       return res.status(400).json({ message: "Giocatore non trovato!" });
@@ -208,7 +186,6 @@ async function update(req, res) {
       message: "Statistiche aggiornate",
       data: {
         id: id,
-
         match_vote: Number(match_vote),
         average_rating: Number(average_rating),
         injuries,
@@ -219,8 +196,8 @@ async function update(req, res) {
         number_goal_conceded: Number(number_goal_conceded),
         number_goal: Number(number_goal),
         number_assist: Number(number_assist),
-        playerName: foundPlayer.name,
-        playerSurname: foundPlayer.surname,
+        playerName: foundPlayer.name, // nome del giocatore trovato
+        playerSurname: foundPlayer.surname, // cognome del giocatore trovato
       },
     });
   } catch (error) {
@@ -229,9 +206,20 @@ async function update(req, res) {
   }
 }
 
+async function remove(req, res) {
+  const id = getIdParam(req);
+  await models.statPlayer.destroy({
+    where: {
+      id: id,
+    },
+  });
+  res.status(200).end();
+}
+
 module.exports = {
   getAll,
   getById,
   create,
   update,
+  remove,
 };

@@ -84,11 +84,20 @@ const playerStatsSlice = createSlice({
     status: "idle": Indica lo stato iniziale (inattivo).
     error: null: Nessun errore iniziale.
   */
-  initialState: { data: [], isShowCardStats: false, isEditStats: { id: "", boolean: true }, selectedPlayerStatsId: null, status: "idle", error: null },
+  initialState: {
+    data: [],
+    // isShowCardStats: false,
+    isShowCardStats: { id: "", boolean: false },
+    isEditStats: { id: "", boolean: true },
+    selectedPlayerStatsId: null,
+    status: "idle",
+    error: null,
+  },
   reducers: {
     // ============== show ======================
     setIsShow: (state, action) => {
-      state.isShowCardStats = action.payload;
+      // state.isShowCardStats = action.payload;
+      state.isShowCardStats = { id: action.payload.id, boolean: action.payload.boolean };
     },
     setIsEditStats: (state, action) => {
       state.isEditStats = { id: action.payload.id, boolean: action.payload.boolean };
@@ -106,6 +115,12 @@ const playerStatsSlice = createSlice({
       // Aggiorna lo stato con i dati ricevuti dall'API e cambia lo stato in "succeeded".
       state.status = "succeeded";
       state.data = action.payload;
+      // ========== prova
+      // state.status = "succeeded";
+      // state.data = action.payload.map((stat) => ({
+      //   ...stat,
+      //   playerId: stat.playerId, // Verifica che ogni statistica abbia il suo playerId
+      // }));
     },
 
     fetchListStatsPlayerFailure: (state, action) => {
@@ -118,12 +133,14 @@ const playerStatsSlice = createSlice({
       state.status = "loading";
     },
     singlePlayerStatsSuccess: (state, action) => {
+      console.log("singola", action.payload);
+
       state.status = "succeeded";
-      state.data = action.payload;
+      state.data = action.payload.length > 0 ? action.payload : [];
     },
     singlePlayerStatsFailure: (state, action) => {
       state.status = "failed";
-      state.data = action.payload;
+      state.error = action.payload;
     },
     // ============================== EDIT SINGOLA STATISTICA =========================
 
@@ -137,20 +154,35 @@ const playerStatsSlice = createSlice({
     },
     editPlayerStatsFailure: (state, action) => {
       state.status = "failed";
-      state.data = action.payload;
+      state.error = action.payload;
     },
     // ============================== ADD SINGOLA STATISTICA =========================
     addPlayerStatsStart: (state) => {
       state.status = "loading";
     },
     addPlayerStatsSuccess: (state, action) => {
+      console.log("ciao pay", action.payload);
+
       state.status = "succeeded";
       // prendi tutte le vecchie e aggiungici anche la nuova!
       state.data = [...state.data, action.payload];
     },
     addPlayerStatsFailure: (state, action) => {
       state.status = "failed";
-      state.data = action.payload;
+      state.error = action.payload;
+    },
+    // ============================== DELETE SINGOLA STATISTICA =========================
+    deletePlayerStatsStart: (state) => {
+      state.status = "loading";
+    },
+    deletePlayerStatsSuccess: (state, action) => {
+      state.status = "succeeded";
+      console.log(action.payload, "12341");
+      state.data = state.data.filter((el) => el.id !== action.payload);
+    },
+    deletePlayerStatsFailure: (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
     },
   },
 });
@@ -172,6 +204,9 @@ export const {
   editPlayerStatsSuccess,
   editPlayerStatsFailure,
   setSelectedPlayerStatsId,
+  deletePlayerStatsStart,
+  deletePlayerStatsSuccess,
+  deletePlayerStatsFailure,
 } = playerStatsSlice.actions;
 
 // Il reducer è la funzione principale che riceve lo stato attuale e un'azione, aggiornando lo stato in base all'azione ricevuta.

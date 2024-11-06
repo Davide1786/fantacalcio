@@ -12,12 +12,17 @@ import {
   fetchListStatsPlayerFailure,
   setIsEditStats,
   setSelectedPlayerStatsId,
+  setIsShow,
+  deletePlayerStatsStart,
+  deletePlayerStatsSuccess,
+  deletePlayerStatsFailure,
 } from "../../../store/reducer/statsPlayer.reducer";
 
-import { fetchPlayerStats } from "../../api/api";
+import { deleteStatsPlayer, fetchPlayerStats } from "../../api/api";
 
 const PlayerStats = () => {
-  const { isShowCardStats, data } = useSelector((state) => state.statsPlayers);
+  const { isShowCardStats, data, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
+  const { playerList } = useSelector((state) => state.player);
   const dispatch = useDispatch();
 
   const recoveStats = () => async () => {
@@ -30,9 +35,48 @@ const PlayerStats = () => {
     }
   };
 
+  const deleteStats = (payload) => async () => {
+    dispatch(deletePlayerStatsStart());
+    try {
+      const response = await deleteStatsPlayer(payload);
+      dispatch(deletePlayerStatsSuccess(payload));
+    } catch (error) {
+      dispatch(deletePlayerStatsFailure(error.message));
+    }
+  };
+
   useEffect(() => {
     dispatch(recoveStats());
   }, []);
+
+  const [updatedData, setUpdatedData] = useState([]);
+
+  useEffect(() => {
+    if (data.length > 0 && playerList.length > 0) {
+      const newData = data.map((stat) => {
+        const player = playerList.find((el) => el.id === stat.playerId);
+        return player
+          ? {
+              ...stat,
+              playerName: player.name,
+              playerSurname: player.surname,
+              club: player.club, // Assicurati che il club venga incluso
+            }
+          : stat;
+      });
+      setUpdatedData(newData);
+    } else if (playerList.length > 0 && isShowCardStats.id) {
+      const newData = playerList
+        .filter((name) => name.id === isShowCardStats.id)
+        .map((player) => ({
+          ...player,
+          playerName: player.name,
+          playerSurname: player.surname,
+          club: player.club, // Assicurati che il club venga incluso qui anche per i nuovi player
+        }));
+      setUpdatedData(newData);
+    }
+  }, [data, playerList, isShowCardStats]);
 
   const handleEditStats = (id) => {
     const selectedStats = data.find((stat) => stat.id === id);
@@ -43,18 +87,29 @@ const PlayerStats = () => {
     }
   };
 
+  const handleDeleteStats = (id) => {
+    dispatch(deleteStats(id));
+  };
+
   return (
     <Grid className={style.containerPagePlayerStats}>
       <Grid className={style.wrapperPlayerStats}>
         <Grid className={style.boxTitle}>
-          {data.length > 0 && (
-            <Typography variant="h6" component="h2">
-              Statistiche Giocatore {isShowCardStats && `${data[0].playerName} ${data[0].playerSurname} - ${data[0].club}`}
-            </Typography>
-          )}
+          <Typography variant="h6" component="h2">
+            Statistiche Giocatore{" "}
+            {updatedData.length > 0 && isShowCardStats.boolean
+              ? `${updatedData[0]?.playerName || updatedData[0]?.name || ""} ${updatedData[0]?.playerSurname || updatedData[0]?.surname || ""} -
+              ${updatedData[0]?.club?.name ?? updatedData[0]?.club}`
+              : ""}
+          </Typography>
         </Grid>
         <Grid className={style.boxInfo}>
-          {isShowCardStats &&
+          {data.length === 0 && isShowCardStats.boolean ? (
+            <Typography variant="h6" component="h2">
+              Nessuna statisticha creata per questo giocatore
+            </Typography>
+          ) : (
+            isShowCardStats.boolean &&
             data.map((player) => (
               <Grid className={style.boxInput} key={player.id}>
                 <Grid className={style.boxCard}>
@@ -131,13 +186,14 @@ const PlayerStats = () => {
                     <Button onClick={() => handleEditStats(player.id)} variant="contained" className={style.btn}>
                       Modifica
                     </Button>
-                    <Button variant="contained" className={style.btn}>
+                    <Button variant="contained" className={style.btn} onClick={() => handleDeleteStats(player.id)}>
                       Elimina
                     </Button>
                   </Grid>
                 </Grid>
               </Grid>
-            ))}
+            ))
+          )}
         </Grid>
       </Grid>
     </Grid>

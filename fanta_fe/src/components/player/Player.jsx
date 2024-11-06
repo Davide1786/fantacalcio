@@ -109,6 +109,8 @@ const Player = () => {
   };
 
   const addStats = (payload) => async (dispatch) => {
+    console.log("PAY: ", payload);
+
     dispatch(addPlayerStatsStart());
     try {
       const responseData = await addStatsPlayer(payload);
@@ -119,6 +121,8 @@ const Player = () => {
   };
 
   const editStats = (payload) => async (dispatch) => {
+    console.log(payload, "topo");
+
     dispatch(editPlayerStatsStart());
     try {
       const responseData = await editStatsPlayer(payload);
@@ -129,6 +133,8 @@ const Player = () => {
   };
 
   const recoverSingolStats = (payload) => async (dispatch) => {
+    console.log("paYYY: ", payload);
+
     dispatch(singlePlayerStatsStart());
     try {
       const response = await fetchPlayerSingleStats(payload);
@@ -167,6 +173,8 @@ const Player = () => {
 
   //  click icon edit player
   const recoverInfoPlayer = (player) => {
+    console.log("remida");
+
     setCurrentPlayer({
       ...player,
       clubName: player.clubName,
@@ -177,8 +185,11 @@ const Player = () => {
     setEditPlayer(true);
   };
 
+  console.log("olaaa1", selectedClubId);
   // click select edit club player
   const handleChange = (event) => {
+    console.log("olaaa");
+
     const selectedClubId = event.target.value;
     const selectedClub = clubList.find((club) => club.id === selectedClubId);
 
@@ -188,9 +199,12 @@ const Player = () => {
         clubName: selectedClub.name,
         clubId: selectedClubId,
       }));
+
       setSelectedClubId(selectedClubId);
     }
   };
+
+  const [pasClubId, setPasClubId] = useState(null);
 
   const sendData = async () => {
     try {
@@ -201,6 +215,7 @@ const Player = () => {
         dispatch(addPlayer(currentPlayer));
         setIsUpdating(true);
       }
+      setPasClubId(selectedClubId);
       setSelectedClubId("");
       setCurrentPlayer({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
       setEditPlayer(false);
@@ -228,14 +243,22 @@ const Player = () => {
   const sendDataStat = async () => {
     try {
       if (editPlayerStats) {
+        // if (editPlayerStats && selectedPlayerStatsId) {
+        console.log(currentPlayerStats, "currentPlayerStats");
         dispatch(editStats(currentPlayerStats));
         setIsUpdating(true);
+        // dispatch(editStats({ ...currentPlayerStats, id: currentPlayerStats.id }));
       } else if (editPlayerStats && isEditStats.boolean) {
         dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       } else {
-        dispatch(addStats(currentPlayerStats));
+        console.log(selectedClubId, "selectedClubId");
+
+        // dispatch(addStats(currentPlayerStats));
+        dispatch(addStats({ ...currentPlayerStats, clubId: pasClubId }));
         setIsUpdating(true);
+        dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       }
+      setPasClubId(null);
       dispatch(setSelectedPlayerStatsId(null));
       setCurrentPlayerStats({
         match_vote: "",
@@ -255,18 +278,18 @@ const Player = () => {
     } catch (error) {
       console.error("Errore durante l'invio dei dati:", error);
     }
-    console.log("Errore durante l'invio dei dati:", selectedPlayerStatsId);
   };
 
   const togglePlayersList = (player) => {
     if (oldIdStats === player.id) {
       // Se il giocatore selezionato è lo stesso, chiudi la vista delle statistiche
-      dispatch(setIsShow(!isShowCardStats));
+      dispatch(setIsShow({ id: player.id, boolean: !isShowCardStats.boolean }));
+      dispatch(recoverSingolStats(player));
     } else {
       // Se il giocatore è diverso, aggiorna oldIdStats e recupera le nuove statistiche
       setOldIdStats(player.id);
       dispatch(recoverSingolStats(player));
-      dispatch(setIsShow(true));
+      dispatch(setIsShow({ id: player.id, boolean: true }));
     }
   };
 
@@ -335,6 +358,20 @@ const Player = () => {
       ...prevPlayer,
       role: selectedRoleId, // Aggiorna il ruolo del giocatore
     }));
+  };
+
+  useEffect(() => {
+    console.log("cele", isShowCardStats.boolean);
+    console.log("editPlayer", editPlayer);
+    if (!isShowCardStats.boolean) {
+      console.log("editPlayer11", editPlayer);
+      console.log("minaa", isShowCardStats.boolean);
+      cleanStats();
+    }
+  }, [isShowCardStats.boolean]);
+
+  const handleDeletePlayer = (player) => {
+    console.log(player, "124");
   };
 
   return (
@@ -472,7 +509,8 @@ const Player = () => {
                       id="demo-simple-select"
                       value={selectedPlayerStatsId || ""}
                       label="Giocatore"
-                      onChange={handleChangeStatsPlayer}>
+                      onChange={handleChangeStatsPlayer}
+                      disabled={isShowCardStats.boolean}>
                       {playerList.map((player) => (
                         <MenuItem key={player.id} value={player.id}>
                           {player.name + " " + player.surname}
@@ -633,10 +671,7 @@ const Player = () => {
                       <Button className={style.btnEdit} onClick={() => togglePlayersList(player)} variant="text">
                         <FontAwesomeIcon icon={faChartColumn} />
                       </Button>
-                      <Button
-                        className={style.btnDelete}
-                        // onClick={() => toggleInfoClub(club.id)}
-                        variant="text">
+                      <Button className={style.btnDelete} onClick={() => handleDeletePlayer(player)} variant="text">
                         <FontAwesomeIcon icon={faTrashCan} />
                       </Button>
                     </Grid>

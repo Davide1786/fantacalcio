@@ -31,6 +31,8 @@ export const fetchPlayerSingleStats = async (payload) => {
 };
 // edit statistica
 export const editStatsPlayer = async (payload) => {
+  console.log(payload, "jojojo");
+
   try {
     const response = await axios.put(`${URL}/playerStats/${payload.id}`, {
       ...payload,
@@ -47,7 +49,19 @@ export const addStatsPlayer = async (payload) => {
   try {
     const response = await axios.post(`${URL}/playerStats`, {
       ...payload,
+      playerName: payload.playerName,
+      playerSurname: payload.playerSurname,
     });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating data:", error);
+    throw error; // Lancia l'errore per gestirlo nel thunk
+  }
+};
+
+export const deleteStatsPlayer = async (payload) => {
+  try {
+    const response = await axios.delete(`${URL}/playerStats/${payload}`);
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
