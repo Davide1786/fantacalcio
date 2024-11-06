@@ -104,7 +104,6 @@ for (const [routeName, routeController] of Object.entries(routes)) {
     app.get(`/api/${routeName}/:id`, makeHandlerAwareOfAsyncErrors(routeController.getById));
   }
   if (routeController.create) {
-    console.log(routeController, "🍕");
     app.post(`/api/${routeName}`, makeHandlerAwareOfAsyncErrors(routeController.create));
   }
   if (routeController.update) {

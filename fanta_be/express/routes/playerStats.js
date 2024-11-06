@@ -12,10 +12,8 @@ async function getAll(req, res) {
         },
       ],
     });
-    console.log("Statistiche trovate:", stats);
     res.status(200).json(stats);
   } catch (error) {
-    // console.log("Statistiche trovate:", stats);
     console.error("Errore durante il recupero delle statistiche dei giocatori:", error);
     res.status(500).json({ error: "Si è verificato un errore durante il recupero delle statistiche dei giocatori" });
   }

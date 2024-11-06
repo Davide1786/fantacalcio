@@ -28,8 +28,6 @@ const clubSlice = createSlice({
       state.status = "loading";
     },
     fetchSingleClubSuccess: (state, action) => {
-      console.log(action.payload, "pppp");
-
       state.status = "succeeded";
       state.selectedClub = action.payload; // Popola solo il singolo club
     },

@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchListPlayer, addSinglePlayer, updateSinglePlayer, fetchPlayerSingleStats, addStatsPlayer, editStatsPlayer } from "../../api/api";
+import {
+  fetchListPlayer,
+  addSinglePlayer,
+  updateSinglePlayer,
+  fetchPlayerSingleStats,
+  addStatsPlayer,
+  editStatsPlayer,
+  deletePlayerApi,
+  deleteStatsPlayer,
+} from "../../api/api";
 import {
   fetchListPlayerStart,
   fetchListPlayerSuccess,
@@ -11,6 +20,9 @@ import {
   addNewPlayerStart,
   addNewPlayerSuccess,
   addNewPlayerFailure,
+  deletePlayerFailure,
+  deletePlayerSuccess,
+  deletePlayerStart,
 } from "../../../store/reducer/player.reducer";
 import {
   setIsShow,
@@ -24,6 +36,9 @@ import {
   editPlayerStatsSuccess,
   editPlayerStatsFailure,
   setSelectedPlayerStatsId,
+  deletePlayerStatsStart,
+  deletePlayerStatsSuccess,
+  deletePlayerStatsFailure,
 } from "../../../store/reducer/statsPlayer.reducer";
 import style from "./player.module.scss";
 import Grid from "@mui/material/Grid2";
@@ -33,7 +48,8 @@ import { faPenToSquare, faTrashCan, faPerson, faChartColumn } from "@fortawesome
 
 const Player = () => {
   const { isShowCardStats, singlePlayerStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
-  const { playerList, statsPlayers } = useSelector((state) => state.player);
+  const { playerList } = useSelector((state) => state.player);
+  const { data } = useSelector((state) => state.statsPlayers);
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
 
   const dispatch = useDispatch();
@@ -108,9 +124,27 @@ const Player = () => {
     }
   };
 
-  const addStats = (payload) => async (dispatch) => {
-    console.log("PAY: ", payload);
+  const deleteStats = (payload) => async () => {
+    dispatch(deletePlayerStatsStart());
+    try {
+      const response = await deleteStatsPlayer(payload);
+      dispatch(deletePlayerStatsSuccess(payload));
+    } catch (error) {
+      dispatch(deletePlayerStatsFailure(error.message));
+    }
+  };
 
+  const deletePlayer = (payload) => async () => {
+    dispatch(deletePlayerStart());
+    try {
+      const response = await deletePlayerApi(payload);
+      dispatch(deletePlayerSuccess(payload));
+    } catch (error) {
+      dispatch(deletePlayerFailure(error.message));
+    }
+  };
+
+  const addStats = (payload) => async (dispatch) => {
     dispatch(addPlayerStatsStart());
     try {
       const responseData = await addStatsPlayer(payload);
@@ -121,8 +155,6 @@ const Player = () => {
   };
 
   const editStats = (payload) => async (dispatch) => {
-    console.log(payload, "topo");
-
     dispatch(editPlayerStatsStart());
     try {
       const responseData = await editStatsPlayer(payload);
@@ -133,8 +165,6 @@ const Player = () => {
   };
 
   const recoverSingolStats = (payload) => async (dispatch) => {
-    console.log("paYYY: ", payload);
-
     dispatch(singlePlayerStatsStart());
     try {
       const response = await fetchPlayerSingleStats(payload);
@@ -173,8 +203,6 @@ const Player = () => {
 
   //  click icon edit player
   const recoverInfoPlayer = (player) => {
-    console.log("remida");
-
     setCurrentPlayer({
       ...player,
       clubName: player.clubName,
@@ -185,11 +213,8 @@ const Player = () => {
     setEditPlayer(true);
   };
 
-  console.log("olaaa1", selectedClubId);
   // click select edit club player
   const handleChange = (event) => {
-    console.log("olaaa");
-
     const selectedClubId = event.target.value;
     const selectedClub = clubList.find((club) => club.id === selectedClubId);
 
@@ -243,17 +268,11 @@ const Player = () => {
   const sendDataStat = async () => {
     try {
       if (editPlayerStats) {
-        // if (editPlayerStats && selectedPlayerStatsId) {
-        console.log(currentPlayerStats, "currentPlayerStats");
         dispatch(editStats(currentPlayerStats));
         setIsUpdating(true);
-        // dispatch(editStats({ ...currentPlayerStats, id: currentPlayerStats.id }));
       } else if (editPlayerStats && isEditStats.boolean) {
         dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       } else {
-        console.log(selectedClubId, "selectedClubId");
-
-        // dispatch(addStats(currentPlayerStats));
         dispatch(addStats({ ...currentPlayerStats, clubId: pasClubId }));
         setIsUpdating(true);
         dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
@@ -361,17 +380,20 @@ const Player = () => {
   };
 
   useEffect(() => {
-    console.log("cele", isShowCardStats.boolean);
-    console.log("editPlayer", editPlayer);
     if (!isShowCardStats.boolean) {
-      console.log("editPlayer11", editPlayer);
-      console.log("minaa", isShowCardStats.boolean);
       cleanStats();
     }
   }, [isShowCardStats.boolean]);
 
   const handleDeletePlayer = (player) => {
-    console.log(player, "124");
+    const playerStatsDelete = data?.filter((sta) => sta.playerId === player.id);
+
+    if (playerStatsDelete && playerStatsDelete.length > 0) {
+      playerStatsDelete.forEach((stat) => {
+        dispatch(deleteStats(stat.id));
+      });
+    }
+    dispatch(deletePlayer(player));
   };
 
   return (

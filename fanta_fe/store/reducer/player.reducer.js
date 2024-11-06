@@ -51,6 +51,18 @@ const playerSlice = createSlice({
       state.status = "failed";
       state.error = action.payload;
     },
+    deletePlayerStart: (state) => {
+      state.status = "loading";
+    },
+    deletePlayerSuccess: (state, action) => {
+      // Aggiorna il player nella lista dei player
+      state.status = "succeeded";
+      state.playerList = state.playerList.filter((player) => player.id !== action.payload.id);
+    },
+    deletePlayerFailure: (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
+    },
   },
 });
 
@@ -65,6 +77,9 @@ export const {
   addNewPlayerStart,
   addNewPlayerSuccess,
   addNewPlayerFailure,
+  deletePlayerStart,
+  deletePlayerSuccess,
+  deletePlayerFailure,
 } = playerSlice.actions;
 
 // Il reducer è la funzione principale che riceve lo stato attuale e un'azione, aggiornando lo stato in base all'azione ricevuta.

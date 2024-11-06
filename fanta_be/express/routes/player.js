@@ -157,8 +157,10 @@ async function remove(req, res) {
       return res.status(404).json({ message: "Giocatore non trovato!" });
     }
 
-    // Elimina il giocatore
-    await player.destroy();
+    // Elimina tutte le statistiche associate al giocatore
+    await models.statPlayer.destroy({
+      where: { playerId: id },
+    });
 
     // Restituisci una risposta di successo
     res.status(200).json({ message: "Giocatore eliminato con successo!" });

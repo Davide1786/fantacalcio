@@ -39,8 +39,6 @@ const Club = () => {
   const dispatch = useDispatch();
 
   const fetchClub = (payload) => async (dispatch) => {
-    console.log("sei partito???");
-
     dispatch(fetchSingleClubStart());
     try {
       const responseData = await fetchSingleClub(payload);
@@ -128,8 +126,6 @@ const Club = () => {
   };
 
   const togglePlayersList = (club) => {
-    console.log(club, "cli");
-
     if (selectedClubId?.id === club.id) {
       setSelectedClubId(null);
     } else {

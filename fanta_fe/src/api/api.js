@@ -31,8 +31,6 @@ export const fetchPlayerSingleStats = async (payload) => {
 };
 // edit statistica
 export const editStatsPlayer = async (payload) => {
-  console.log(payload, "jojojo");
-
   try {
     const response = await axios.put(`${URL}/playerStats/${payload.id}`, {
       ...payload,
@@ -111,6 +109,16 @@ export const updateSinglePlayer = async (payload) => {
       info: payload.info,
       clubName: payload.clubId, // Usa il nome del club dall'oggetto `club`
     });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating data:", error);
+    throw error; // Lancia l'errore per gestirlo nel thunk
+  }
+};
+
+export const deletePlayerApi = async (payload) => {
+  try {
+    const response = await axios.delete(`${URL}/player/${payload.id}`);
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);

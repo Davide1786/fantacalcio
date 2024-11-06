@@ -133,8 +133,6 @@ const playerStatsSlice = createSlice({
       state.status = "loading";
     },
     singlePlayerStatsSuccess: (state, action) => {
-      console.log("singola", action.payload);
-
       state.status = "succeeded";
       state.data = action.payload.length > 0 ? action.payload : [];
     },
@@ -161,8 +159,6 @@ const playerStatsSlice = createSlice({
       state.status = "loading";
     },
     addPlayerStatsSuccess: (state, action) => {
-      console.log("ciao pay", action.payload);
-
       state.status = "succeeded";
       // prendi tutte le vecchie e aggiungici anche la nuova!
       state.data = [...state.data, action.payload];
@@ -177,7 +173,6 @@ const playerStatsSlice = createSlice({
     },
     deletePlayerStatsSuccess: (state, action) => {
       state.status = "succeeded";
-      console.log(action.payload, "12341");
       state.data = state.data.filter((el) => el.id !== action.payload);
     },
     deletePlayerStatsFailure: (state, action) => {
