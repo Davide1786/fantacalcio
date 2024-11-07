@@ -21,7 +21,7 @@ export const fetchPlayerSingleStats = async (payload) => {
       ...stat,
       playerName: payload.name,
       playerSurname: payload.surname,
-      club: payload.club.name,
+      club: payload.club ? payload.club.name : "Svincolato",
     }));
     return statsWithDetails || [];
   } catch (error) {
@@ -97,18 +97,28 @@ export const addSinglePlayer = async (payload) => {
   }
 };
 
-export const updateSinglePlayer = async (payload) => {
+export const updateSinglePlayer = async (payload, isRelease = false) => {
+  console.log(payload, "pay");
+
   try {
-    const response = await axios.put(`${URL}/player/${payload.id}`, {
-      name: payload.name,
-      surname: payload.surname,
-      age: payload.age,
-      nationality: payload.nationality,
-      role: payload.role,
-      price_player: payload.price_player,
-      info: payload.info,
-      clubName: payload.clubId, // Usa il nome del club dall'oggetto `club`
-    });
+    const updateData = isRelease
+      ? {
+          clubId: payload.clubId,
+          clubName: payload.clubName,
+        }
+      : {
+          name: payload.name,
+          surname: payload.surname,
+          age: payload.age,
+          nationality: payload.nationality,
+          role: payload.role,
+          price_player: payload.price_player,
+          info: payload.info,
+          clubId: payload.clubId,
+          clubName: payload.clubName,
+        };
+
+    const response = await axios.put(`${URL}/player/${payload.id}`, updateData);
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
@@ -174,6 +184,16 @@ export const updateSingleClub = async (payload) => {
       colors_home: payload.colors_home,
       colors_away: payload.colors_away,
     });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating data:", error);
+    throw error; // Lancia l'errore per gestirlo nel thunk
+  }
+};
+
+export const deleteClubApi = async (payload) => {
+  try {
+    const response = await axios.delete(`${URL}/club/${payload}`);
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);

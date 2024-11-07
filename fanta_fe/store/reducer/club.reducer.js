@@ -64,6 +64,19 @@ const clubSlice = createSlice({
       state.status = "failed";
       state.error = action.payload;
     },
+
+    // ============================== DELETE SINGOLO CLUB =========================
+    deleteClubStart: (state) => {
+      state.status = "loading";
+    },
+    deleteClubSuccess: (state, action) => {
+      state.status = "succeeded";
+      state.clubList = state.clubList.filter((el) => el.id !== action.payload);
+    },
+    deleteClubFailure: (state, action) => {
+      state.status = "failed";
+      state.error = action.payload;
+    },
   },
 });
 
@@ -80,5 +93,8 @@ export const {
   addNewClubStart,
   addNewClubSuccess,
   addNewClubFailure,
+  deleteClubStart,
+  deleteClubSuccess,
+  deleteClubFailure,
 } = clubSlice.actions;
 export default clubSlice.reducer;

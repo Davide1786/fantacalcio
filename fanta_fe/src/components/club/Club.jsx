@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShirt, faCircleQuestion, faPerson, faPenToSquare, faShield, faTrashCan, faShieldHalved, faKaaba } from "@fortawesome/free-solid-svg-icons";
 import style from "./club.module.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchClubList, fetchSingleClub, updateSingleClub, addedSingleClub } from "../../api/api";
+import { fetchClubList, fetchSingleClub, updateSingleClub, addedSingleClub, deleteClubApi, updateSinglePlayer, fetchListPlayer } from "../../api/api";
 import {
   fetchClubListStart,
   fetchClubListSuccess,
@@ -19,11 +19,23 @@ import {
   addNewClubStart,
   addNewClubSuccess,
   addNewClubFailure,
+  deleteClubStart,
+  deleteClubSuccess,
+  deleteClubFailure,
 } from "../../../store/reducer/club.reducer";
+import {
+  updatePlayerFailure,
+  updatePlayerSuccess,
+  updatePlayerStart,
+  fetchListPlayerStart,
+  fetchListPlayerSuccess,
+  fetchListPlayerFailure,
+} from "../../../store/reducer/player.reducer";
 
 const Club = () => {
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
-  const { playerList, statsPlayers } = useSelector((state) => state.player);
+  const { playerList } = useSelector((state) => state.player);
+  const { data } = useSelector((state) => state.statsPlayers);
 
   const [selectedClubId, setSelectedClubId] = useState(null);
   const [currentClub, setCurrentClub] = useState({
@@ -75,6 +87,26 @@ const Club = () => {
       dispatch(updateClubSuccess(responseData));
     } catch (error) {
       dispatch(updateClubFailure(error.message));
+    }
+  };
+
+  const fetchPlayers = () => async () => {
+    dispatch(fetchListPlayerStart());
+    try {
+      const responseData = await fetchListPlayer(); // Chiama l'API
+      dispatch(fetchListPlayerSuccess(responseData)); // Aggiorna lo stato con i dati
+    } catch (error) {
+      dispatch(fetchListPlayerFailure(error.message)); // Gestisce l'errore
+    }
+  };
+
+  const deleteClub = (payload) => async () => {
+    dispatch(deleteClubStart());
+    try {
+      const response = await deleteClubApi(payload);
+      dispatch(deleteClubSuccess(payload));
+    } catch (error) {
+      dispatch(deleteClubFailure(error.message));
     }
   };
 
@@ -141,6 +173,41 @@ const Club = () => {
     }
     setCurrentClub({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
   };
+
+  const [isRecoverList, setIsRecoverList] = useState(false);
+  useEffect(() => {
+    if (isRecoverList) {
+      dispatch(fetchPlayers());
+      setIsRecoverList(false);
+    }
+  }, [isRecoverList]);
+  const updatePlayer = (payload) => async (dispatch) => {
+    dispatch(updatePlayerStart());
+    try {
+      const responseData = await updateSinglePlayer(payload);
+      dispatch(updatePlayerSuccess(responseData));
+    } catch (error) {
+      dispatch(updatePlayerFailure(error.message));
+    }
+  };
+
+  // =======
+  const handleDeleteClub = (club) => {
+    // Filtra i giocatori associati al club specifico
+    const playerDelete = playerList?.filter((player) => player.clubId === club);
+
+    if (playerDelete.length > 0) {
+      playerDelete.forEach((player) => {
+        dispatch(updatePlayer({ id: player.id, clubId: null, clubName: null }, true));
+      });
+    }
+
+    // Aggiungi qui la logica per cancellare il club
+    dispatch(deleteClub(club));
+    setIsRecoverList(true);
+  };
+
+  // =======
 
   return (
     <Grid className={style.containerPageClub}>
@@ -255,10 +322,7 @@ const Club = () => {
                       <Button className={style.btnInfo} onClick={() => toggleInfoClub(club)} variant="text">
                         <FontAwesomeIcon icon={faCircleQuestion} />
                       </Button>
-                      <Button
-                        className={style.btnDelete}
-                        // onClick={() => toggleInfoClub(club.id)}
-                        variant="text">
+                      <Button className={style.btnDelete} onClick={() => handleDeleteClub(club.id)} variant="text">
                         <FontAwesomeIcon icon={faTrashCan} />
                       </Button>
                     </Grid>

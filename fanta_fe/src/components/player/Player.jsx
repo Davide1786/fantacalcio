@@ -93,6 +93,8 @@ const Player = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedClubId, setSelectedClubId] = useState(""); // ID del club selezionato
   const [oldIdStats, setOldIdStats] = useState(null);
+  const extendedClubList = [{ id: "svincolato", name: "Svincolato" }, ...clubList];
+  const [pasClubId, setPasClubId] = useState(null);
   // api
   const fetchPlayers = () => async () => {
     dispatch(fetchListPlayerStart());
@@ -186,12 +188,11 @@ const Player = () => {
     }
   }, [isUpdating]);
 
-  // refresh icon edit player
   useEffect(() => {
     if (editPlayer) {
-      setSelectedClubId(currentPlayer.clubId); // Verifica che editPlayer.clubId sia definito
+      setSelectedClubId(currentPlayer.clubId ?? "svincolato");
     }
-  }, [editPlayer]);
+  }, [editPlayer, currentPlayer.clubId]);
 
   useEffect(() => {
     if (isEditStats.boolean && isEditStats.id) {
@@ -200,6 +201,12 @@ const Player = () => {
       setEditPlayerStats(true);
     }
   }, [isEditStats]);
+
+  useEffect(() => {
+    if (!isShowCardStats.boolean) {
+      cleanStats();
+    }
+  }, [isShowCardStats.boolean]);
 
   //  click icon edit player
   const recoverInfoPlayer = (player) => {
@@ -213,23 +220,27 @@ const Player = () => {
     setEditPlayer(true);
   };
 
-  // click select edit club player
+  // Gestisci il cambio di selezione del club
   const handleChange = (event) => {
-    const selectedClubId = event.target.value;
-    const selectedClub = clubList.find((club) => club.id === selectedClubId);
+    const selectedClubId = event.target.value || "svincolato";
 
-    if (selectedClub) {
+    if (selectedClubId === "svincolato") {
+      setCurrentPlayer((prevState) => ({
+        ...prevState,
+        clubName: "Svincolato",
+        clubId: null,
+      }));
+    } else {
+      const selectedClub = clubList.find((club) => club.id === selectedClubId);
       setCurrentPlayer((prevState) => ({
         ...prevState,
         clubName: selectedClub.name,
         clubId: selectedClubId,
       }));
-
-      setSelectedClubId(selectedClubId);
     }
-  };
 
-  const [pasClubId, setPasClubId] = useState(null);
+    setSelectedClubId(selectedClubId);
+  };
 
   const sendData = async () => {
     try {
@@ -379,12 +390,6 @@ const Player = () => {
     }));
   };
 
-  useEffect(() => {
-    if (!isShowCardStats.boolean) {
-      cleanStats();
-    }
-  }, [isShowCardStats.boolean]);
-
   const handleDeletePlayer = (player) => {
     const playerStatsDelete = data?.filter((sta) => sta.playerId === player.id);
 
@@ -493,9 +498,9 @@ const Player = () => {
                 <Grid className={style.field_container}>
                   <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">Club</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedClubId} label="Club" onChange={handleChange}>
-                      {clubList.map((club) => (
-                        <MenuItem key={club.id} value={club.id}>
+                    <Select labelId="club-select-label" id="club-select" value={selectedClubId || ""} label="Club" onChange={handleChange}>
+                      {extendedClubList.map((club) => (
+                        <MenuItem key={club.id} value={club.id || ""}>
                           {club.name}
                         </MenuItem>
                       ))}
@@ -684,7 +689,7 @@ const Player = () => {
                         {player.name} {player.surname}
                       </span>
                       <span className={style.role}>{player.role}</span>
-                      <span className={style.club}>{`${player.club?.name || player.club} `}</span>
+                      <span className={style.club}>{`${player.club === null ? "Svincolato" : player.club?.name || player.club} `}</span>
                     </Grid>
                     <Grid className={style.wrapperBtn}>
                       <Button className={style.btnEdit} onClick={() => recoverInfoPlayer(player)} variant="text">

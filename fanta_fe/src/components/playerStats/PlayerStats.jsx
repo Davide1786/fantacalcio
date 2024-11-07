@@ -99,7 +99,7 @@ const PlayerStats = () => {
             Statistiche Giocatore{" "}
             {updatedData.length > 0 && isShowCardStats.boolean
               ? `${updatedData[0]?.playerName || updatedData[0]?.name || ""} ${updatedData[0]?.playerSurname || updatedData[0]?.surname || ""} -
-              ${updatedData[0]?.club?.name ?? updatedData[0]?.club}`
+              ${updatedData[0].club === null ? "Svincolato" : updatedData[0]?.club?.name ?? updatedData[0]?.club}`
               : ""}
           </Typography>
         </Grid>
