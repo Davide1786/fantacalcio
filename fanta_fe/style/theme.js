@@ -201,27 +201,6 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
       },
     },
 
-    // MuiInputLabel: {
-    //   styleOverrides: {
-    //     root: {
-    //       fontSize: ".8rem",
-
-    //       // "& .MuiInputLabel-root": {
-    //       //   top: "-5px", // Modifica solo per le etichette di Select
-    //       // },
-
-    //       // top: "-5px", // Imposta il valore 'top' desiderato
-    //       // Puoi aggiungere altre proprietà di stile qui
-    //     },
-    //     outlined: {
-    //       top: "-10px", // Modifica specifica per il tipo "outlined"
-    //       // "& .MuiInputLabel-root": {
-    //       //   top: "-15px", // Modifica solo per le etichette di Select
-    //       // },
-    //     },
-    //   },
-    // },
-
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -229,16 +208,11 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
         },
       },
     },
+
     MuiInputBase: {
       styleOverrides: {
         root: {
           input: {
-            // alignItems: "center",
-            // boxSizing: "border-box",
-            // color: "unset",
-            // display: "flex",
-            // fontSize: "1.8rem",
-
             "&:hover": {
               cursor: "pointer", // Cambia il cursore in 'pointer' durante l'hover
             },
@@ -249,6 +223,7 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
         },
       },
     },
+
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
@@ -262,6 +237,60 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
         },
       },
     },
+
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          maxWidth: "200px",
+          maxHeight: "300px",
+        },
+      },
+    },
+    // Personalizzazione di MuiPopover
+    MuiPopover: {
+      styleOverrides: {
+        paper: {
+          maxWidth: "200px",
+          maxHeight: "300px",
+        },
+      },
+    },
+    // Personalizzazione di MuiMenu
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          maxWidth: "200px",
+          maxHeight: "300px",
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+
+          span: {
+            width: "200px",
+            maxWidth: "200px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          },
+        },
+      },
+    },
+    // MuiMenuItem: {
+    //   styleOverrides: {
+    //     root: {
+    //       whiteSpace: "nowrap", // Impedisce la rottura delle parole su più righe
+    //       overflow: "hidden", // Nasconde il testo che esce fuori dalla larghezza
+    //       textOverflow: "ellipsis", // Aggiunge i puntini di sospensione
+    //       maxWidth: "100%", // Garantisce che il testo non esca dalla larghezza del menu
+    //     },
+    //   },
+    // },
   },
 });
 

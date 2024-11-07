@@ -45,6 +45,7 @@ import Grid from "@mui/material/Grid2";
 import { Button, Typography, TextField, Checkbox, FormControl, InputLabel, Select, MenuItem, FormControlLabel } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan, faPerson, faChartColumn } from "@fortawesome/free-solid-svg-icons";
+import { countryListAlpha2 } from "../../utility/nationality";
 
 const Player = () => {
   const { isShowCardStats, singlePlayerStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
@@ -87,6 +88,12 @@ const Player = () => {
     { id: "mediano", name: "Mediano" },
     { id: "attaccante", name: "Attaccante" },
   ];
+
+  // Trasformiamo countryListAlpha2 in un array di opzioni
+  const countryOptions = Object.entries(countryListAlpha2).map(([code, name]) => ({
+    code,
+    name,
+  }));
 
   const [editPlayer, setEditPlayer] = useState(false);
   const [editPlayerStats, setEditPlayerStats] = useState(false);
@@ -446,16 +453,23 @@ const Player = () => {
                   />
                 </Grid>
                 <Grid className={style.field_container}>
-                  <TextField
-                    size="small"
-                    className={style.input}
-                    id="nationality"
-                    label="Nazionalità"
-                    variant="outlined"
-                    value={currentPlayer.nationality}
-                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, nationality: e.target.value })}
-                  />
+                  <FormControl fullWidth>
+                    <InputLabel id="nationality-select-label">Nazionalità</InputLabel>
+                    <Select
+                      labelId="nationality-select-label"
+                      id="nationality-select"
+                      value={currentPlayer.nationality || ""}
+                      label="Nazionalità"
+                      onChange={(e) => setCurrentPlayer({ ...currentPlayer, nationality: e.target.value })}>
+                      {countryOptions.map((country) => (
+                        <MenuItem key={country.code} value={country.name}>
+                          <span>{country.name}</span>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
+
                 <Grid className={style.field_container}>
                   <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">Ruolo</InputLabel>
