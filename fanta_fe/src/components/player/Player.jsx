@@ -399,6 +399,9 @@ const Player = () => {
       });
     }
     dispatch(deletePlayer(player));
+    formik.handleClean();
+    formikStats.cleanStats();
+    dispatch(setIsShow({ id: "", boolean: !isShowCardStats.boolean }));
   };
 
   // click select edit statsPlayer

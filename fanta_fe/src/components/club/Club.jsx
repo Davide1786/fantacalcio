@@ -212,7 +212,7 @@ const Club = () => {
       if (editClub) {
         dispatch(updateClub(values));
         setIsUpdating(true);
-        setShowInfoClub(values);
+        // setShowInfoClub(values);
       } else {
         dispatch(addedClub(values));
         setIsUpdating(true);
