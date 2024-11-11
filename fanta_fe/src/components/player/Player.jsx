@@ -46,41 +46,17 @@ import { Button, Typography, TextField, Checkbox, FormControl, InputLabel, Selec
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan, faPerson, faChartColumn } from "@fortawesome/free-solid-svg-icons";
 import { countryListAlpha2 } from "../../utility/nationality";
+import { useFormik } from "formik";
+import * as Yup from "yup"; // Se desideri aggiungere validazioni
+import PortalSelect from "../portalSelect/PortalSelect";
 
 const Player = () => {
-  const { isShowCardStats, singlePlayerStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
+  const { isShowCardStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
   const { playerList } = useSelector((state) => state.player);
   const { data } = useSelector((state) => state.statsPlayers);
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
 
   const dispatch = useDispatch();
-
-  const [currentPlayer, setCurrentPlayer] = useState({
-    name: "",
-    surname: "",
-    age: "",
-    nationality: "",
-    role: "",
-    price_player: "",
-    info: "",
-    clubName: "",
-    clubId: "", // aggiungi l'ID del club qui
-  });
-
-  const [currentPlayerStats, setCurrentPlayerStats] = useState({
-    match_vote: "",
-    average_rating: "",
-    injuries: false,
-    red_card: "",
-    yellow_card: "",
-    available_for_selection: false,
-    number_of_match: "",
-    number_goal_conceded: "",
-    number_goal: "",
-    number_assist: "",
-    playerName: "",
-    playerSurname: "",
-  });
 
   const rolesForSelect = [
     { id: "portiere", name: "Portiere" },
@@ -98,10 +74,12 @@ const Player = () => {
   const [editPlayer, setEditPlayer] = useState(false);
   const [editPlayerStats, setEditPlayerStats] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [selectedClubId, setSelectedClubId] = useState(""); // ID del club selezionato
+
   const [oldIdStats, setOldIdStats] = useState(null);
   const extendedClubList = [{ id: "svincolato", name: "Svincolato" }, ...clubList];
   const [pasClubId, setPasClubId] = useState(null);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+
   // api
   const fetchPlayers = () => async () => {
     dispatch(fetchListPlayerStart());
@@ -130,16 +108,6 @@ const Player = () => {
       dispatch(updatePlayerSuccess(responseData));
     } catch (error) {
       dispatch(updatePlayerFailure(error.message));
-    }
-  };
-
-  const deleteStats = (payload) => async () => {
-    dispatch(deletePlayerStatsStart());
-    try {
-      const response = await deleteStatsPlayer(payload);
-      dispatch(deletePlayerStatsSuccess(payload));
-    } catch (error) {
-      dispatch(deletePlayerStatsFailure(error.message));
     }
   };
 
@@ -183,6 +151,16 @@ const Player = () => {
     }
   };
 
+  const deleteStats = (payload) => async () => {
+    dispatch(deletePlayerStatsStart());
+    try {
+      const response = await deleteStatsPlayer(payload);
+      dispatch(deletePlayerStatsSuccess(payload));
+    } catch (error) {
+      dispatch(deletePlayerStatsFailure(error.message));
+    }
+  };
+
   useEffect(() => {
     dispatch(fetchPlayers());
   }, []);
@@ -197,83 +175,240 @@ const Player = () => {
 
   useEffect(() => {
     if (editPlayer) {
-      setSelectedClubId(currentPlayer.clubId ?? "svincolato");
+      formik.setFieldValue("selectedClubId", formik.values.clubId ?? "svincolato");
     }
-  }, [editPlayer, currentPlayer.clubId]);
+  }, [editPlayer]);
 
   useEffect(() => {
     if (isEditStats.boolean && isEditStats.id) {
-      setCurrentPlayerStats(isEditStats.id);
-      // dispatch(setSelectedPlayerStatsId(isEditStats.id?.playerId));
+      formikStats.setValues(isEditStats.id);
       setEditPlayerStats(true);
     }
   }, [isEditStats]);
 
   useEffect(() => {
     if (!isShowCardStats.boolean) {
-      cleanStats();
+      formikStats.cleanStats();
     }
   }, [isShowCardStats.boolean]);
 
-  //  click icon edit player
   const recoverInfoPlayer = (player) => {
-    setCurrentPlayer({
+    formik.setValues({
       ...player,
       clubName: player.clubName,
-      clubId: player.clubId,
+      clubId: player.clubId ?? "svincolato",
     });
+    formik.setFieldValue("selectedClubId", player.clubId ?? "svincolato");
 
-    setSelectedClubId(player.clubId);
     setEditPlayer(true);
+    setSelectedPlayer(player);
   };
 
-  // Gestisci il cambio di selezione del club
-  const handleChange = (event) => {
+  useEffect(() => {
+    if (selectedPlayer) {
+      formik.setValues((values) => ({
+        ...values,
+        clubId: selectedPlayer.clubId === null ? "svincolato" : selectedPlayer.clubId,
+      }));
+      formik.setFieldValue("selectedClubId", selectedPlayer.clubId === null ? "svincolato" : selectedPlayer.clubId);
+    }
+  }, [selectedPlayer]);
+
+  const handleChangeClub = (event) => {
     const selectedClubId = event.target.value || "svincolato";
+    formik.setTouched({ ...formik.touched, clubName: false });
 
     if (selectedClubId === "svincolato") {
-      setCurrentPlayer((prevState) => ({
+      formik.setValues((prevState) => ({
         ...prevState,
         clubName: "Svincolato",
-        clubId: null,
+        clubId: null, // Usa null per "svincolato"
       }));
     } else {
       const selectedClub = clubList.find((club) => club.id === selectedClubId);
-      setCurrentPlayer((prevState) => ({
+      formik.setValues((prevState) => ({
         ...prevState,
         clubName: selectedClub.name,
         clubId: selectedClubId,
       }));
     }
-
-    setSelectedClubId(selectedClubId);
+    formik.setFieldValue("selectedClubId", selectedClubId);
   };
 
-  const sendData = async () => {
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      surname: "",
+      age: "",
+      nationality: "",
+      role: "",
+      price_player: "",
+      info: "",
+      clubName: null,
+      clubId: "",
+      editPlayer: false,
+      club: "",
+      selectedClubId: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Campo obbligatorio"),
+      surname: Yup.string().required("Campo obbligatorio"),
+      age: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positiva")
+        .integer("Deve essere un numero intero"),
+      nationality: Yup.string().required("Campo obbligatorio"),
+      role: Yup.string().required("Campo obbligatorio"),
+      clubName: Yup.lazy((value) => {
+        // Condizione per il campo clubName, che dipende da editPlayer
+        if (editPlayer) {
+          return Yup.string().nullable(); // Se siamo in modalità modifica, il campo può essere null
+        } else {
+          if (value === "" || value === null) {
+            return Yup.string().required("Campo obbligatorio");
+          } else {
+            return Yup.string().nullable(); // Se non è vuoto o null, è valido
+          }
+        }
+      }),
+
+      info: Yup.string().required("Campo obbligatorio"),
+      price_player: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+    }),
+    onSubmit: (values, { resetForm }) => {
+      sendData(values, resetForm);
+    },
+  });
+
+  const formikStats = useFormik({
+    initialValues: {
+      match_vote: "",
+      average_rating: "",
+      injuries: false,
+      red_card: "",
+      yellow_card: "",
+      available_for_selection: false,
+      number_of_match: "",
+      number_goal_conceded: "",
+      number_goal: "",
+      number_assist: "",
+      playerName: "",
+      playerSurname: "",
+    },
+    validationSchema: Yup.object({
+      match_vote: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      average_rating: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      red_card: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      yellow_card: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      number_of_match: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      number_goal_conceded: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      number_goal: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      number_assist: Yup.number()
+        .typeError("Deve essere un numero")
+        .required("Campo obbligatorio")
+        .positive("Deve essere positivo")
+        .integer("Deve essere un numero intero"),
+      playerName: Yup.string().required("Campo obbligatorio"),
+    }),
+    onSubmit: (values, { resetForm }) => {
+      sendDataStat(values, resetForm);
+    },
+  });
+
+  const sendData = async (values, resetForm) => {
     try {
       if (editPlayer) {
-        dispatch(updatePlayer(currentPlayer));
+        dispatch(updatePlayer(values));
         setIsUpdating(true);
       } else {
-        dispatch(addPlayer(currentPlayer));
+        dispatch(addPlayer(values));
         setIsUpdating(true);
+        setEditPlayer(true);
       }
-      setPasClubId(selectedClubId);
-      setSelectedClubId("");
-      setCurrentPlayer({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
+
+      setPasClubId(formik.values.selectedClubId);
+      formik.setFieldValue("selectedClubId", "");
+
+      // Reset del form e stato
+      resetForm({
+        name: "",
+        surname: "",
+        age: "",
+        nationality: "",
+        role: "",
+        price_player: "",
+        info: "",
+        clubName: "",
+      });
       setEditPlayer(false);
     } catch (error) {
       console.error("Errore durante l'invio dei dati:", error);
     }
   };
 
+  formik.handleClean = () => {
+    if (editPlayer) {
+      setEditPlayer(false);
+      formik.setFieldValue("selectedClubId", "");
+      formik.resetForm({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
+    }
+    formik.setFieldValue("selectedClubId", "");
+    formik.resetForm({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
+    setEditPlayer(false);
+  };
+
+  const handleDeletePlayer = (player) => {
+    const playerStatsDelete = data?.filter((sta) => sta.playerId === player.id);
+
+    if (playerStatsDelete && playerStatsDelete.length > 0) {
+      playerStatsDelete.forEach((stat) => {
+        dispatch(deleteStats(stat.id));
+      });
+    }
+    dispatch(deletePlayer(player));
+  };
+
   // click select edit statsPlayer
   const handleChangeStatsPlayer = (event) => {
     const selectedPlayerStatsId = event.target.value;
     const selectedStats = playerList.find((player) => player.id === selectedPlayerStatsId);
+    formik.setTouched({ ...formik.touched, playerName: false });
 
     if (selectedStats) {
-      setCurrentPlayerStats((prevState) => ({
+      formikStats.setValues((prevState) => ({
         ...prevState,
         playerName: selectedStats.name,
         playerSurname: selectedStats.surname,
@@ -283,21 +418,21 @@ const Player = () => {
     }
   };
 
-  const sendDataStat = async () => {
+  const sendDataStat = async (values, resetForm) => {
     try {
       if (editPlayerStats) {
-        dispatch(editStats(currentPlayerStats));
+        dispatch(editStats(values));
         setIsUpdating(true);
       } else if (editPlayerStats && isEditStats.boolean) {
         dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       } else {
-        dispatch(addStats({ ...currentPlayerStats, clubId: pasClubId }));
+        dispatch(addStats({ ...values, clubId: pasClubId }));
         setIsUpdating(true);
         dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       }
       setPasClubId(null);
       dispatch(setSelectedPlayerStatsId(null));
-      setCurrentPlayerStats({
+      resetForm({
         match_vote: "",
         average_rating: "",
         injuries: false,
@@ -330,24 +465,13 @@ const Player = () => {
     }
   };
 
-  const clean = () => {
-    if (editPlayer) {
-      setEditPlayer(false);
-      setSelectedClubId("");
-      setCurrentPlayer({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
-    }
-    setSelectedClubId("");
-    setCurrentPlayer({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
-    setEditPlayer(false);
-  };
-
-  const cleanStats = () => {
+  formikStats.cleanStats = () => {
     if (editPlayerStats) {
       setEditPlayerStats(false);
 
       dispatch(setSelectedPlayerStatsId(null));
 
-      setCurrentPlayerStats({
+      formikStats.resetForm({
         match_vote: "",
         average_rating: "",
         injuries: false,
@@ -365,7 +489,7 @@ const Player = () => {
 
     dispatch(setSelectedPlayerStatsId(null));
 
-    setCurrentPlayerStats({
+    formikStats.resetForm({
       match_vote: "",
       average_rating: "",
       injuries: false,
@@ -382,39 +506,13 @@ const Player = () => {
     setEditPlayerStats(false);
   };
 
-  // Funzione generica per aggiornare lo stato
-  const handleChangeStats = (field) => (event) => {
-    const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
-    setCurrentPlayerStats((prevStats) => ({ ...prevStats, [field]: value }));
-  };
-
-  // click select edit role player
-  const handleChangeRole = (event) => {
-    const selectedRoleId = event.target.value;
-    setCurrentPlayer((prevPlayer) => ({
-      ...prevPlayer,
-      role: selectedRoleId, // Aggiorna il ruolo del giocatore
-    }));
-  };
-
-  const handleDeletePlayer = (player) => {
-    const playerStatsDelete = data?.filter((sta) => sta.playerId === player.id);
-
-    if (playerStatsDelete && playerStatsDelete.length > 0) {
-      playerStatsDelete.forEach((stat) => {
-        dispatch(deleteStats(stat.id));
-      });
-    }
-    dispatch(deletePlayer(player));
-  };
-
   return (
     <Grid className={style.containerPagePlayer}>
       <Grid className={style.wrapperPlayer}>
         <Grid className={style.boxInput}>
           <Grid className={style.playerInput}>
             <Typography variant="h6" component="h2">
-              Crea giocatore
+              {editPlayer ? "Modifica Giocatore" : "Crea Giocatore"}
             </Typography>
 
             <Grid className={style.wrapperTextInput}>
@@ -424,113 +522,104 @@ const Player = () => {
                     size="small"
                     className={style.input}
                     id="name"
+                    name="name"
                     label="Nome"
                     variant="outlined"
-                    value={currentPlayer.name}
-                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, name: e.target.value })}
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    error={formik.touched.name && Boolean(formik.errors.name)}
+                    helperText={formik.touched.name && formik.errors.name}
                   />
-                </Grid>
-                <Grid className={style.field_container}>
+
                   <TextField
                     size="small"
                     className={style.input}
                     id="surname"
+                    name="surname"
                     label="Cognome"
                     variant="outlined"
-                    value={currentPlayer.surname}
-                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, surname: e.target.value })}
+                    value={formik.values.surname}
+                    onChange={formik.handleChange}
+                    error={formik.touched.surname && Boolean(formik.errors.surname)}
+                    helperText={formik.touched.surname && formik.errors.surname}
                   />
-                </Grid>
-                <Grid className={style.field_container}>
+
                   <TextField
                     size="small"
                     className={style.input}
                     id="age"
+                    name="age"
                     label="Età"
                     variant="outlined"
-                    value={currentPlayer.age}
-                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, age: e.target.value })}
+                    value={formik.values.age}
+                    onChange={formik.handleChange}
+                    error={formik.touched.age && Boolean(formik.errors.age)}
+                    helperText={formik.touched.age && formik.errors.age}
                   />
-                </Grid>
-                <Grid className={style.field_container}>
-                  <FormControl fullWidth>
-                    <InputLabel id="nationality-select-label">Nazionalità</InputLabel>
-                    <Select
-                      labelId="nationality-select-label"
-                      id="nationality-select"
-                      value={currentPlayer.nationality || ""}
-                      label="Nazionalità"
-                      onChange={(e) => setCurrentPlayer({ ...currentPlayer, nationality: e.target.value })}>
-                      {countryOptions.map((country) => (
-                        <MenuItem key={country.code} value={country.name}>
-                          <span>{country.name}</span>
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
 
-                <Grid className={style.field_container}>
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Ruolo</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={currentPlayer.role} // Usa il valore di currentPlayer.role
-                      label="Ruolo"
-                      onChange={handleChangeRole}>
-                      {rolesForSelect.map((role) => (
-                        <MenuItem key={role.id} value={role.id}>
-                          {role.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid className={style.field_container}>
+                  <PortalSelect
+                    label="Nazionalità"
+                    name="nationality"
+                    value={formik.values.nationality}
+                    options={countryOptions.map((country) => ({ value: country.name, label: country.name }))}
+                    formik={formik}
+                  />
+
+                  <PortalSelect
+                    label="Ruolo"
+                    name="role"
+                    value={formik.values.role}
+                    options={rolesForSelect.map((role) => ({ value: role.id, label: role.name }))}
+                    formik={formik}
+                  />
+
                   <TextField
                     size="small"
                     className={style.input}
                     id="price_player"
+                    name="price_player"
                     label="Prezzo"
                     variant="outlined"
-                    value={currentPlayer.price_player}
-                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, price_player: e.target.value })}
+                    value={formik.values.price_player}
+                    onChange={formik.handleChange}
+                    error={formik.touched.price_player && Boolean(formik.errors.price_player)}
+                    helperText={formik.touched.price_player && formik.errors.price_player}
                   />
-                </Grid>
-                <Grid className={style.field_container}>
+
                   <TextField
                     size="small"
                     className={style.input}
                     id="info"
+                    name="info"
                     label="Info"
                     variant="outlined"
-                    value={currentPlayer.info}
-                    onChange={(e) => setCurrentPlayer({ ...currentPlayer, info: e.target.value })}
+                    value={formik.values.info}
+                    onChange={formik.handleChange}
+                    error={formik.touched.info && Boolean(formik.errors.info)}
+                    helperText={formik.touched.info && formik.errors.info}
+                  />
+
+                  <PortalSelect
+                    label="Club"
+                    name="clubId"
+                    value={formik.values.selectedClubId}
+                    options={extendedClubList.map((club) => ({
+                      value: club.id || "",
+                      label: club.name,
+                    }))}
+                    formik={formik}
+                    onChangeCustom={handleChangeClub}
                   />
                 </Grid>
-                <Grid className={style.field_container}>
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Club</InputLabel>
-                    <Select labelId="club-select-label" id="club-select" value={selectedClubId || ""} label="Club" onChange={handleChange}>
-                      {extendedClubList.map((club) => (
-                        <MenuItem key={club.id} value={club.id || ""}>
-                          {club.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                <Grid className={style.wrapperBtn}>
+                  <Button onClick={formik.handleClean} variant="contained" className={style.btn}>
+                    Pulisci campi
+                  </Button>
+                  <Button className={style.submitBtn} onClick={formik.handleSubmit} variant="contained" color="primary">
+                    {editPlayer ? "Modifica Giocatore" : "Crea Giocatore"}
+                  </Button>
                 </Grid>
               </Grid>
-            </Grid>
-
-            <Grid className={style.wrapperBtn}>
-              <Button onClick={clean} variant="contained" className={style.btn}>
-                Pulisci campi
-              </Button>
-              <Button onClick={sendData} variant="contained" className={style.btn}>
-                {editPlayer ? "Salva modifica" : "Crea giocatore"}
-              </Button>
             </Grid>
           </Grid>
 
@@ -543,45 +632,42 @@ const Player = () => {
             <Grid className={style.wrapperTextInput}>
               <Grid className={style.boxText}>
                 <Grid className={style.field_container}>
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Giocatore</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={selectedPlayerStatsId || ""}
-                      label="Giocatore"
-                      onChange={handleChangeStatsPlayer}
-                      disabled={isShowCardStats.boolean}>
-                      {playerList.map((player) => (
-                        <MenuItem key={player.id} value={player.id}>
-                          {player.name + " " + player.surname}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid className={style.field_container}>
-                  <TextField
-                    size="small"
-                    className={style.input}
-                    id="votoPartita"
-                    label="Voto Partita"
-                    variant="outlined"
-                    value={currentPlayerStats.match_vote !== undefined ? currentPlayerStats.match_vote : ""}
-                    onChange={handleChangeStats("match_vote")}
+                  <PortalSelect
+                    label="Giocatore"
+                    name="player" // Cambia a 'player' se il campo si chiama 'player' in formikStats
+                    value={selectedPlayerStatsId || ""}
+                    options={playerList.map((player) => ({ value: player.id, label: player.name + " " + player.surname }))}
+                    formik={formikStats}
+                    onChangeCustom1={handleChangeStatsPlayer}
+                    disabled={isShowCardStats.boolean}
                   />
                 </Grid>
+
+                <TextField
+                  size="small"
+                  className={style.input}
+                  id="votoPartita"
+                  name="match_vote"
+                  label="Voto Partita"
+                  variant="outlined"
+                  value={formikStats.values.match_vote}
+                  onChange={formikStats.handleChange}
+                  error={formikStats.touched.match_vote && Boolean(formikStats.errors.match_vote)}
+                  helperText={formikStats.touched.match_vote && formikStats.errors.match_vote}
+                />
 
                 <Grid className={style.field_container}>
                   <TextField
                     size="small"
                     className={style.input}
                     id="mediaVoto"
+                    name="average_rating"
                     label="Media Voto"
                     variant="outlined"
-                    value={currentPlayerStats.average_rating !== undefined ? currentPlayerStats.average_rating : ""}
-                    onChange={handleChangeStats("average_rating")}
+                    value={formikStats.values.average_rating}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.average_rating && Boolean(formikStats.errors.average_rating)}
+                    helperText={formikStats.touched.average_rating && formikStats.errors.average_rating}
                   />
                 </Grid>
 
@@ -590,10 +676,13 @@ const Player = () => {
                     size="small"
                     className={style.input}
                     id="golFatti"
+                    name="number_goal"
                     label="Gol Fatti"
                     variant="outlined"
-                    value={currentPlayerStats.number_goal !== undefined ? currentPlayerStats.number_goal : ""}
-                    onChange={handleChangeStats("number_goal")}
+                    value={formikStats.values.number_goal}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.number_goal && Boolean(formikStats.errors.number_goal)}
+                    helperText={formikStats.touched.number_goal && formikStats.errors.number_goal}
                   />
                 </Grid>
 
@@ -602,10 +691,13 @@ const Player = () => {
                     size="small"
                     className={style.input}
                     id="assist"
+                    name="number_assist"
                     label="Assist"
                     variant="outlined"
-                    value={currentPlayerStats.number_assist !== undefined ? currentPlayerStats.number_assist : ""}
-                    onChange={handleChangeStats("number_assist")}
+                    value={formikStats.values.number_assist}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.number_assist && Boolean(formikStats.errors.number_assist)}
+                    helperText={formikStats.touched.number_assist && formikStats.errors.number_assist}
                   />
                 </Grid>
 
@@ -614,10 +706,13 @@ const Player = () => {
                     size="small"
                     className={style.input}
                     id="golSubiti"
+                    name="number_goal_conceded"
                     label="Gol Subiti"
                     variant="outlined"
-                    value={currentPlayerStats.number_goal_conceded !== undefined ? currentPlayerStats.number_goal_conceded : ""}
-                    onChange={handleChangeStats("number_goal_conceded")}
+                    value={formikStats.values.number_goal_conceded}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.number_goal_conceded && Boolean(formikStats.errors.number_goal_conceded)}
+                    helperText={formikStats.touched.number_goal_conceded && formikStats.errors.number_goal_conceded}
                   />
                 </Grid>
 
@@ -626,10 +721,13 @@ const Player = () => {
                     size="small"
                     className={style.input}
                     id="redCard"
+                    name="red_card"
                     label="Cartellini rossi"
                     variant="outlined"
-                    value={currentPlayerStats.red_card !== undefined ? currentPlayerStats.red_card : ""}
-                    onChange={handleChangeStats("red_card")}
+                    value={formikStats.values.red_card}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.red_card && Boolean(formikStats.errors.red_card)}
+                    helperText={formikStats.touched.red_card && formikStats.errors.red_card}
                   />
                 </Grid>
 
@@ -638,10 +736,13 @@ const Player = () => {
                     size="small"
                     className={style.input}
                     id="yellowCard"
+                    name="yellow_card"
                     label="Cartellini gialli"
                     variant="outlined"
-                    value={currentPlayerStats.yellow_card !== undefined ? currentPlayerStats.yellow_card : ""}
-                    onChange={handleChangeStats("yellow_card")}
+                    value={formikStats.values.yellow_card}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.yellow_card && Boolean(formikStats.errors.yellow_card)}
+                    helperText={formikStats.touched.yellow_card && formikStats.errors.yellow_card}
                   />
                 </Grid>
 
@@ -650,23 +751,28 @@ const Player = () => {
                     size="small"
                     className={style.input}
                     id="partiteGiocate"
+                    name="number_of_match"
                     label="Partite Giocate"
                     variant="outlined"
-                    value={currentPlayerStats.number_of_match !== undefined ? currentPlayerStats.number_of_match : ""}
-                    onChange={handleChangeStats("number_of_match")}
+                    value={formikStats.values.number_of_match}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.number_of_match && Boolean(formikStats.errors.number_of_match)}
+                    helperText={formikStats.touched.number_of_match && formikStats.errors.number_of_match}
                   />
                 </Grid>
 
                 <Grid className={style.field_container}>
                   <FormControlLabel
-                    control={<Checkbox checked={currentPlayerStats.available_for_selection ?? false} onChange={handleChangeStats("available_for_selection")} />}
-                    label="Disponibilita Partita"
+                    control={
+                      <Checkbox checked={formikStats.values.available_for_selection} onChange={formikStats.handleChange} name="available_for_selection" />
+                    }
+                    label="Disponibilità Partita"
                   />
                 </Grid>
 
                 <Grid className={style.field_container}>
                   <FormControlLabel
-                    control={<Checkbox checked={currentPlayerStats.injuries ?? false} onChange={handleChangeStats("injuries")} />}
+                    control={<Checkbox checked={formikStats.values.injuries} onChange={formikStats.handleChange} name="injuries" />}
                     label="Infortunato"
                   />
                 </Grid>
@@ -674,10 +780,10 @@ const Player = () => {
             </Grid>
 
             <Grid className={style.wrapperBtn}>
-              <Button onClick={cleanStats} variant="contained" className={style.btn}>
+              <Button onClick={formikStats.cleanStats} variant="contained" className={style.btn}>
                 Pulisci campi
               </Button>
-              <Button onClick={sendDataStat} variant="contained" className={style.btn}>
+              <Button onClick={formikStats.handleSubmit} variant="contained" className={style.btn}>
                 {editPlayerStats ? "Salva modifica" : "Crea statistica"}
               </Button>
             </Grid>

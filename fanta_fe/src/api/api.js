@@ -98,8 +98,6 @@ export const addSinglePlayer = async (payload) => {
 };
 
 export const updateSinglePlayer = async (payload, isRelease = false) => {
-  console.log(payload, "pay");
-
   try {
     const updateData = isRelease
       ? {

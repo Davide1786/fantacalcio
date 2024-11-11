@@ -37,8 +37,56 @@
         margin-bottom: 16px;
       }
 
-      .statsInput,
       .playerInput {
+        margin-bottom: 30px;
+
+        .wrapperTextInput {
+          .boxText {
+            @media (min-width: 1440px) {
+              grid-template-columns: repeat(5, 1fr);
+            }
+
+            @media (max-width: 768px) {
+              display: block;
+            }
+            .field_container {
+              min-width: 100%;
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+              gap: 8px;
+
+              @media (min-width: 1440px) {
+                grid-template-columns: repeat(5, 1fr);
+              }
+              .input {
+                width: 100%;
+              }
+            }
+          }
+        }
+
+        .wrapperBtn {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-top: 8px;
+
+          @media (max-width: 768px) {
+            gap: 4px;
+            justify-content: center;
+            margin: 2rem 0 1rem;
+            flex-direction: column;
+          }
+
+          .btn {
+            @media (max-width: 480px) {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+
+      .statsInput {
         margin-bottom: 30px;
 
         .wrapperTextInput {

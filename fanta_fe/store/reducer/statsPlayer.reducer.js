@@ -133,8 +133,6 @@ const playerStatsSlice = createSlice({
       state.status = "loading";
     },
     singlePlayerStatsSuccess: (state, action) => {
-      console.log(action.payload, "000");
-
       state.status = "succeeded";
       state.data = action.payload.length > 0 ? action.payload : [];
     },

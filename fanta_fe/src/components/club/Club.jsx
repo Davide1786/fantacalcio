@@ -32,19 +32,16 @@ import {
   fetchListPlayerFailure,
 } from "../../../store/reducer/player.reducer";
 
+import { Formik, Form, Field, ErrorMessage, useFormik } from "formik";
+import * as Yup from "yup";
+
 const Club = () => {
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
   const { playerList } = useSelector((state) => state.player);
   const { data } = useSelector((state) => state.statsPlayers);
 
   const [selectedClubId, setSelectedClubId] = useState(null);
-  const [currentClub, setCurrentClub] = useState({
-    name: "",
-    stadium: "",
-    derby: "",
-    colors_home: "",
-    colors_away: "",
-  });
+
   const [showInfoClub, setShowInfoClub] = useState({}); // Stato per controllare le info dei club
   const [editClub, setEditClub] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -128,27 +125,29 @@ const Club = () => {
     }
   }, [isUpdating]);
 
-  // Invia i dati (aggiunta o modifica di un club)
-  const sendData = async () => {
-    try {
-      if (editClub) {
-        dispatch(updateClub(currentClub));
-        setIsUpdating(true);
-        setShowInfoClub(currentClub);
-      } else {
-        dispatch(addedClub(currentClub));
-        setIsUpdating(true);
-      }
-      setCurrentClub({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
-      setEditClub(false);
-    } catch (error) {
-      console.error("Errore durante l'invio dei dati:", error);
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      stadium: "",
+      derby: "",
+      colors_home: "",
+      colors_away: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Campo obbligatorio"),
+      stadium: Yup.string().required("Campo obbligatorio"),
+      derby: Yup.string().required("Campo obbligatorio"),
+      colors_home: Yup.string().required("Campo obbligatorio"),
+      colors_away: Yup.string().required("Campo obbligatorio"),
+    }),
+    onSubmit: (values, { resetForm }) => {
+      handleSubmit(values, resetForm);
+    },
+  });
 
   // Recupera i dati di un club e li imposta nel form per la modifica
   const recoverInfoClub = (club) => {
-    setCurrentClub(club);
+    formik.setValues(club);
     setEditClub(true);
   };
 
@@ -166,12 +165,13 @@ const Club = () => {
     }
   };
 
-  const clean = () => {
+  formik.clean = () => {
     if (editClub) {
       setEditClub(false);
-      setCurrentClub({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
+      formik.resetForm({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
     }
-    setCurrentClub({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
+
+    formik.resetForm({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
   };
 
   const [isRecoverList, setIsRecoverList] = useState(false);
@@ -181,6 +181,7 @@ const Club = () => {
       setIsRecoverList(false);
     }
   }, [isRecoverList]);
+
   const updatePlayer = (payload) => async (dispatch) => {
     dispatch(updatePlayerStart());
     try {
@@ -191,7 +192,6 @@ const Club = () => {
     }
   };
 
-  // =======
   const handleDeleteClub = (club) => {
     // Filtra i giocatori associati al club specifico
     const playerDelete = playerList?.filter((player) => player.clubId === club);
@@ -207,7 +207,22 @@ const Club = () => {
     setIsRecoverList(true);
   };
 
-  // =======
+  const handleSubmit = (values) => {
+    try {
+      if (editClub) {
+        dispatch(updateClub(values));
+        setIsUpdating(true);
+        setShowInfoClub(values);
+      } else {
+        dispatch(addedClub(values));
+        setIsUpdating(true);
+      }
+      formik.resetForm({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
+      setEditClub(false);
+    } catch (error) {
+      console.error("Errore durante l'invio dei dati:", error);
+    }
+  };
 
   return (
     <Grid className={style.containerPageClub}>
@@ -218,85 +233,85 @@ const Club = () => {
           </Typography>
 
           <Grid className={style.wrapperTextInput}>
-            <Grid className={style.boxTest}>
-              <Grid className={style.field_container}>
-                <TextField
-                  // placeholder="Inserisci il tuo nome"
-                  size="small"
-                  className={style.input}
-                  id="nome"
-                  label="Nome"
-                  variant="outlined"
-                  value={currentClub.name}
-                  onChange={(e) => setCurrentClub({ ...currentClub, name: e.target.value })}
-                  // sx={{
-                  //   "& .MuiOutlinedInput-root": {
-                  //     "& fieldset": {
-                  //       borderColor: "rgb(244, 4, 220)", // Colore normale del bordo
-                  //     },
-                  //     "&:hover fieldset": {
-                  //       borderColor: "blue", // Colore del bordo al passaggio del mouse
-                  //     },
-                  //     "&.Mui-focused fieldset": {
-                  //       borderColor: "green", // Colore del bordo quando è in focus
-                  //     },
-                  //   },
-                  // }}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="stadio"
-                  label="Stadio"
-                  variant="outlined"
-                  value={currentClub.stadium}
-                  onChange={(e) => setCurrentClub({ ...currentClub, stadium: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="derby"
-                  label="Derby"
-                  variant="outlined"
-                  value={currentClub.derby}
-                  onChange={(e) => setCurrentClub({ ...currentClub, derby: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="coloreMagliettaCasa"
-                  label="Colore Maglietta Casa"
-                  variant="outlined"
-                  value={currentClub.colors_home}
-                  onChange={(e) => setCurrentClub({ ...currentClub, colors_home: e.target.value })}
-                />
-              </Grid>
-              <Grid className={style.field_container}>
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="coloreMagliettaTrasferta"
-                  label="Colore Maglietta Trasferta"
-                  variant="outlined"
-                  value={currentClub.colors_away}
-                  onChange={(e) => setCurrentClub({ ...currentClub, colors_away: e.target.value })}
-                />
+            <Grid className={style.boxText}>
+              <Grid className={style.wrapperTextField}>
+                <Grid className={style.fieldContainer}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="name"
+                    name="name"
+                    label="Nome"
+                    variant="outlined"
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    error={formik.touched.name && Boolean(formik.errors.name)}
+                    helperText={formik.touched.name && formik.errors.name}
+                  />
+
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="stadium"
+                    name="stadium"
+                    label="Stadio"
+                    variant="outlined"
+                    value={formik.values.stadium}
+                    onChange={formik.handleChange}
+                    error={formik.touched.stadium && Boolean(formik.errors.stadium)}
+                    helperText={formik.touched.stadium && formik.errors.stadium}
+                  />
+
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="derby"
+                    name="derby"
+                    label="Derby"
+                    variant="outlined"
+                    value={formik.values.derby}
+                    onChange={formik.handleChange}
+                    error={formik.touched.derby && Boolean(formik.errors.derby)}
+                    helperText={formik.touched.derby && formik.errors.derby}
+                  />
+
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="colors_home"
+                    name="colors_home"
+                    label="Colore Maglietta Casa"
+                    variant="outlined"
+                    value={formik.values.colors_home}
+                    onChange={formik.handleChange}
+                    error={formik.touched.colors_home && Boolean(formik.errors.colors_home)}
+                    helperText={formik.touched.colors_home && formik.errors.colors_home}
+                  />
+
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="colors_away"
+                    name="colors_away"
+                    label="Colore Maglietta Trasferta"
+                    variant="outlined"
+                    value={formik.values.colors_away}
+                    onChange={formik.handleChange}
+                    error={formik.touched.colors_away && Boolean(formik.errors.colors_away)}
+                    helperText={formik.touched.colors_away && formik.errors.colors_away}
+                  />
+                </Grid>
+
+                <Grid className={style.wrapperBtn}>
+                  <Button onClick={formik.clean} variant="contained" className={style.btn}>
+                    Pulisci campi
+                  </Button>
+                  <Button onClick={formik.handleSubmit} type="submit" variant="contained" className={style.btn}>
+                    {editClub ? "Salva modifica" : "Crea Club"}
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid className={style.wrapperBtn}>
-            <Button onClick={clean} variant="contained" className={style.btn}>
-              Pulisci campi
-            </Button>
-            <Button onClick={sendData} variant="contained" className={style.btn}>
-              {editClub ? "Salva modifica" : "Crea Club"}
-            </Button>
           </Grid>
         </Grid>
 

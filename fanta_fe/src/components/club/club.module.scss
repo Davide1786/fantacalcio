@@ -6,7 +6,6 @@
 
   .wrapperClub {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
     grid-template-columns: 1.5fr 2fr 2fr 1fr 1fr;
     gap: 10px;
 
@@ -34,56 +33,44 @@
       }
 
       .wrapperTextInput {
-        .boxTest {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-          gap: 8px;
+        .boxText {
+          .wrapperTextField {
+            width: 100%;
 
-          @media (min-width: 1440px) {
-            grid-template-columns: repeat(5, 1fr);
-          }
+            .fieldContainer {
+              min-width: 100%;
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+              gap: 8px;
 
-          @media (max-width: 768px) {
-            display: block;
-          }
+              @media (min-width: 1440px) {
+                grid-template-columns: repeat(5, 1fr);
+              }
 
-          .field_container {
-            @media (max-width: 768px) {
-              margin-top: 16px;
+              .input {
+                width: 100%;
+              }
             }
-            @media (max-width: 480px) {
-              margin-top: 16px;
+
+            .wrapperBtn {
+              display: flex;
+              justify-content: flex-end;
+              gap: 8px;
+              margin-top: 8px;
+
+              @media (max-width: 768px) {
+                gap: 4px;
+                justify-content: center;
+                margin: 2rem 0 1rem;
+                flex-direction: column;
+              }
+
+              .btn {
+                @media (max-width: 480px) {
+                  font-size: 12px;
+                }
+              }
             }
-            .input {
-              width: 100%;
-            }
-          }
-        }
-      }
-
-      .wrapperBtn {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 8px;
-
-        @media (max-width: 768px) {
-          gap: 4px;
-          justify-content: center;
-          margin: 2rem 0 1rem;
-          flex-direction: column;
-        }
-
-        @media (max-width: 480px) {
-          gap: 4px;
-          justify-content: space-between;
-          font-size: 12px;
-          margin: 2rem 0 1rem;
-        }
-
-        .btn {
-          @media (max-width: 480px) {
-            font-size: 12px;
           }
         }
       }
@@ -98,6 +85,9 @@
       height: 310px;
       overflow: scroll;
 
+      @media (max-width: 768px) {
+        height: 100%;
+      }
       @media (max-width: 480px) {
         margin-bottom: 16px;
       }
@@ -190,16 +180,6 @@
 
       height: 310px;
       overflow: scroll;
-
-      // @media (min-width: 1440px) {
-      //   background-color: rgb(44, 2, 41);
-      // }
-      // @media (max-width: 768px) {
-      //   background-color: rgb(219, 30, 77);
-      // }
-      // @media (max-width: 480px) {
-      //   margin-bottom: 16px;
-      // }
     }
   }
 }

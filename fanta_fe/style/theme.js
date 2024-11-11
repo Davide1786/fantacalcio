@@ -205,6 +205,50 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
       styleOverrides: {
         root: {
           fontSize: ".8rem",
+
+          "&.Mui-error .MuiInputLabel-root": {
+            color: "#f9423a", // Colore rosso quando c'è errore
+          },
+        },
+      },
+    },
+
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+          fontWeight: "400",
+          fontSize: "0.75rem",
+          lineHeight: "1.66",
+          letterSpacing: "0.03333em",
+          textAlign: "left",
+          color: "#f9423a",
+
+          // ".MuiFormLabel-root": {
+          //   color: "#f9423a",
+          // },
+
+          "&.Mui-error": {
+            color: "#f9423a", // Colore della label in caso di errore
+          },
+
+          // label: {
+          //   color: "red",
+          // },
+
+          // "MuiFormLabel-root": {
+          //   color: "#f9423a",
+          // },
+        },
+      },
+    },
+
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          "&.MuiInputLabel-root Mui-error": {
+            color: "#f9423a", // Cambia il colore della label quando c'è errore
+          },
         },
       },
     },
@@ -224,19 +268,37 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
       },
     },
 
+    // MuiOutlinedInput: {
+    //   styleOverrides: {
+    //     root: {
+    //       // Per gestire il bordo al passaggio del mouse
+    //       "&:hover .MuiOutlinedInput-notchedOutline": {
+    //         borderColor: brandSecondaryColor, // Cambia il colore del bordo in rosso quando c'è hover
+    //       },
+    //     },
+    //     notchedOutline: {
+    //       borderColor: brandColor, // Colore del bordo normale
+    //     },
+    //   },
+    // },
+
+    // ==============
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          // Per gestire il bordo al passaggio del mouse
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: brandSecondaryColor, // Cambia il colore del bordo in rosso quando c'è hover
+            borderColor: "#2ABF89", // Colore del bordo in hover
+          },
+          "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#F9423a", // Colore rosso per errore
           },
         },
         notchedOutline: {
-          borderColor: brandColor, // Colore del bordo normale
+          borderColor: "#2ABF89", // Bordo di default
         },
       },
     },
+    // ==============
 
     MuiPaper: {
       styleOverrides: {
@@ -264,6 +326,7 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
         },
       },
     },
+
     MuiMenuItem: {
       styleOverrides: {
         root: {
@@ -281,16 +344,6 @@ contrastText: Colore del testo sovrapposto al colore di conferma.
         },
       },
     },
-    // MuiMenuItem: {
-    //   styleOverrides: {
-    //     root: {
-    //       whiteSpace: "nowrap", // Impedisce la rottura delle parole su più righe
-    //       overflow: "hidden", // Nasconde il testo che esce fuori dalla larghezza
-    //       textOverflow: "ellipsis", // Aggiunge i puntini di sospensione
-    //       maxWidth: "100%", // Garantisce che il testo non esca dalla larghezza del menu
-    //     },
-    //   },
-    // },
   },
 });
 
