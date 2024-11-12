@@ -26,6 +26,7 @@ import {
 } from "../../../store/reducer/player.reducer";
 import {
   setIsShow,
+  setIsEmpty,
   singlePlayerStatsStart,
   singlePlayerStatsSuccess,
   singlePlayerStatsFailure,
@@ -54,7 +55,7 @@ import PortalModal from "../portalModal/PortalModal";
 import PortalModalInfo from "../portalModal/PortalModalInfo";
 
 const Player = () => {
-  const { isShowCardStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
+  const { isShowCardStats, isEditStats, selectedPlayerStatsId, isEmpty } = useSelector((state) => state.statsPlayers);
   const { playerList } = useSelector((state) => state.player);
   const { data } = useSelector((state) => state.statsPlayers);
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
@@ -200,6 +201,13 @@ const Player = () => {
       formikStats.cleanStats();
     }
   }, [isShowCardStats.boolean]);
+
+  useEffect(() => {
+    if (isEmpty) {
+      formikStats.cleanStats();
+      dispatch(setIsEmpty(false));
+    }
+  }, [isEmpty]);
 
   const recoverInfoPlayer = (player) => {
     formik.setValues({
@@ -550,7 +558,6 @@ const Player = () => {
 
   const closeModalInfo = () => {
     setIsShowModalInfo(false);
-
     setParamsId(null);
   };
 

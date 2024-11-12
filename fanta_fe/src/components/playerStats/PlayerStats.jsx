@@ -12,6 +12,7 @@ import {
   setIsEditStats,
   setSelectedPlayerStatsId,
   setIsShow,
+  setIsEmpty,
   deletePlayerStatsStart,
   deletePlayerStatsSuccess,
   deletePlayerStatsFailure,
@@ -24,6 +25,9 @@ const PlayerStats = () => {
   const { isShowCardStats, data, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
   const { playerList } = useSelector((state) => state.player);
   const dispatch = useDispatch();
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [paramsId, setParamsId] = useState(null);
+  const [updatedData, setUpdatedData] = useState([]);
 
   const recoveStats = () => async () => {
     dispatch(fetchListStatsPlayerStart());
@@ -48,8 +52,6 @@ const PlayerStats = () => {
   useEffect(() => {
     dispatch(recoveStats());
   }, []);
-
-  const [updatedData, setUpdatedData] = useState([]);
 
   useEffect(() => {
     if (data.length > 0 && playerList.length > 0) {
@@ -87,9 +89,6 @@ const PlayerStats = () => {
     }
   };
 
-  const [isShowModal, setIsShowModal] = useState(false);
-  const [paramsId, setParamsId] = useState(null);
-
   const showModal = (par) => {
     setParamsId(par);
     setIsShowModal(true);
@@ -101,9 +100,12 @@ const PlayerStats = () => {
   };
 
   const handleDeleteStats = (id) => {
-    dispatch(deleteStats(id));
     if (data.length === 1) {
       dispatch(setIsShow({ id: "", boolean: false }));
+      dispatch(deleteStats(id));
+    } else {
+      dispatch(setIsEmpty(true));
+      dispatch(deleteStats(id));
     }
   };
 

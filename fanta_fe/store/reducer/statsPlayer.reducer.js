@@ -89,12 +89,16 @@ const playerStatsSlice = createSlice({
     // isShowCardStats: false,
     isShowCardStats: { id: "", boolean: false },
     isEditStats: { id: "", boolean: true },
+    isEmpty: false,
     selectedPlayerStatsId: null,
     status: "idle",
     error: null,
   },
   reducers: {
     // ============== show ======================
+    setIsEmpty: (state, action) => {
+      state.isEmpty = action.payload;
+    },
     setIsShow: (state, action) => {
       // state.isShowCardStats = action.payload;
       state.isShowCardStats = { id: action.payload.id, boolean: action.payload.boolean };
@@ -202,6 +206,7 @@ export const {
   deletePlayerStatsStart,
   deletePlayerStatsSuccess,
   deletePlayerStatsFailure,
+  setIsEmpty,
 } = playerStatsSlice.actions;
 
 // Il reducer è la funzione principale che riceve lo stato attuale e un'azione, aggiornando lo stato in base all'azione ricevuta.
