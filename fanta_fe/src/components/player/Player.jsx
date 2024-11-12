@@ -50,6 +50,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup"; // Se desideri aggiungere validazioni
 import PortalSelect from "../portalSelect/PortalSelect";
 import capitalizeWords from "../../utility/capitalizeFunction";
+import PortalModal from "../portalModal/PortalModal";
 
 const Player = () => {
   const { isShowCardStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
@@ -391,6 +392,19 @@ const Player = () => {
     setEditPlayer(false);
   };
 
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
+
+  const showModal = (par) => {
+    setParamsId(par); // Imposta l'id del club da eliminare
+    setIsShowModal(true); // Mostra il modale
+  };
+
+  const closeModal = () => {
+    setIsShowModal(false);
+    setParamsId(null); // Resetta l'id selezionato
+  };
+
   const handleDeletePlayer = (player) => {
     const playerStatsDelete = data?.filter((sta) => sta.playerId === player.id);
 
@@ -402,7 +416,7 @@ const Player = () => {
     dispatch(deletePlayer(player));
     formik.handleClean();
     formikStats.cleanStats();
-    dispatch(setIsShow({ id: "", boolean: !isShowCardStats.boolean }));
+    dispatch(setIsShow({ id: "", boolean: false }));
   };
 
   // click select edit statsPlayer
@@ -512,6 +526,7 @@ const Player = () => {
 
   return (
     <Grid className={style.containerPagePlayer}>
+      <PortalModal isShowModal={isShowModal} onClose={closeModal} handleDelete={handleDeletePlayer} paramsId={paramsId} msg={"player"} />
       <Grid className={style.wrapperPlayer}>
         <Grid className={style.boxInput}>
           <Grid className={style.playerInput}>
@@ -848,7 +863,8 @@ const Player = () => {
                       <Button className={style.btnEdit} onClick={() => togglePlayersList(player)} variant="text">
                         <FontAwesomeIcon icon={faChartColumn} />
                       </Button>
-                      <Button className={style.btnDelete} onClick={() => handleDeletePlayer(player)} variant="text">
+                      {/* <Button className={style.btnDelete} onClick={() => handleDeletePlayer(player)} variant="text"> */}
+                      <Button className={style.btnDelete} onClick={() => showModal(player)} variant="text">
                         <FontAwesomeIcon icon={faTrashCan} />
                       </Button>
                     </Grid>

@@ -35,6 +35,7 @@ import {
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import capitalizeWords from "../../utility/capitalizeFunction";
+import PortalModal from "../portalModal/PortalModal";
 
 const Club = () => {
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
@@ -193,21 +194,38 @@ const Club = () => {
     }
   };
 
-  const handleDeleteClub = (club) => {
-    // Filtra i giocatori associati al club specifico
-    const playerDelete = playerList?.filter((player) => player.clubId === club);
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
 
-    if (playerDelete.length > 0) {
-      playerDelete.forEach((player) => {
-        dispatch(updatePlayer({ id: player.id, clubId: null, clubName: null }, true));
-      });
+  const showModal = (par) => {
+    setParamsId(par); // Imposta l'id del club da eliminare
+    setIsShowModal(true); // Mostra il modale
+  };
+
+  const closeModal = () => {
+    setIsShowModal(false);
+    setParamsId(null); // Resetta l'id selezionato
+  };
+
+  const handleDeleteClub = (clubId) => {
+    // Riceve clubId come parametro
+    if (clubId) {
+      // Filtra i giocatori associati al club specifico
+      const playerDelete = playerList?.filter((player) => player.clubId === clubId);
+
+      if (playerDelete.length > 0) {
+        playerDelete.forEach((player) => {
+          dispatch(updatePlayer({ id: player.id, clubId: null, clubName: null }, true));
+        });
+      }
+
+      // Cancella il club
+      dispatch(deleteClub(clubId));
+      setIsRecoverList(true);
+      setShowInfoClub({});
+      formik.clean();
+      closeModal(); // Chiudi il modale dopo l'eliminazione
     }
-
-    // Aggiungi qui la logica per cancellare il club
-    dispatch(deleteClub(club));
-    setIsRecoverList(true);
-    setShowInfoClub({});
-    formik.clean();
   };
 
   const handleSubmit = (values) => {
@@ -226,15 +244,9 @@ const Club = () => {
     }
   };
 
-  // function capitalizeWords(string) {
-  //   return string
-  //     .split(" ")
-  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-  //     .join(" ");
-  // }
-
   return (
     <Grid className={style.containerPageClub}>
+      <PortalModal isShowModal={isShowModal} onClose={closeModal} handleDelete={handleDeleteClub} paramsId={paramsId} msg={"club"} />
       <Grid className={style.wrapperClub}>
         <Grid className={style.boxInput}>
           <Typography variant="h6" component="h2">
@@ -346,7 +358,8 @@ const Club = () => {
                       <Button className={style.btnInfo} onClick={() => toggleInfoClub(club)} variant="text">
                         <FontAwesomeIcon icon={faCircleQuestion} />
                       </Button>
-                      <Button className={style.btnDelete} onClick={() => handleDeleteClub(club.id)} variant="text">
+                      {/* <Button className={style.btnDelete} onClick={() => handleDeleteClub(club.id)} variant="text"> */}
+                      <Button className={style.btnDelete} onClick={() => showModal(club.id)} variant="text">
                         <FontAwesomeIcon icon={faTrashCan} />
                       </Button>
                     </Grid>

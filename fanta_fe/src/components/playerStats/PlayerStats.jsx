@@ -19,6 +19,7 @@ import {
 } from "../../../store/reducer/statsPlayer.reducer";
 
 import { deleteStatsPlayer, fetchPlayerStats } from "../../api/api";
+import PortalModal from "../portalModal/PortalModal";
 
 const PlayerStats = () => {
   const { isShowCardStats, data, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
@@ -87,12 +88,28 @@ const PlayerStats = () => {
     }
   };
 
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
+
+  const showModal = (par) => {
+    setParamsId(par); // Imposta l'id del club da eliminare
+    setIsShowModal(true); // Mostra il modale
+  };
+
+  const closeModal = () => {
+    setIsShowModal(false);
+    setParamsId(null); // Resetta l'id selezionato
+  };
+
   const handleDeleteStats = (id) => {
     dispatch(deleteStats(id));
+    dispatch(setIsShow({ id: "", boolean: false }));
   };
 
   return (
     <Grid className={style.containerPagePlayerStats}>
+      <PortalModal isShowModal={isShowModal} onClose={closeModal} handleDelete={handleDeleteStats} paramsId={paramsId} msg={"stats"} />
+
       <Grid className={style.wrapperPlayerStats}>
         <Grid className={style.boxTitle}>
           <Typography variant="h6" component="h2">
@@ -186,7 +203,8 @@ const PlayerStats = () => {
                     <Button onClick={() => handleEditStats(player.id)} variant="contained" className={style.btn}>
                       Modifica
                     </Button>
-                    <Button variant="contained" className={style.btn} onClick={() => handleDeleteStats(player.id)}>
+                    {/* <Button variant="contained" className={style.btn} onClick={() => handleDeleteStats(player.id)}> */}
+                    <Button variant="contained" className={style.btn} onClick={() => showModal(player.id)}>
                       Elimina
                     </Button>
                   </Grid>
