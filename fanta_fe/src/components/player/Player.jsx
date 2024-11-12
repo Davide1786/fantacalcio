@@ -49,6 +49,7 @@ import { countryListAlpha2 } from "../../utility/nationality";
 import { useFormik } from "formik";
 import * as Yup from "yup"; // Se desideri aggiungere validazioni
 import PortalSelect from "../portalSelect/PortalSelect";
+import capitalizeWords from "../../utility/capitalizeFunction";
 
 const Player = () => {
   const { isShowCardStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
@@ -608,7 +609,10 @@ const Player = () => {
                     value={formik.values.selectedClubId}
                     options={extendedClubList.map((club) => ({
                       value: club.id || "",
-                      label: club.name,
+                      label: club.name
+                        .split(" ")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" "),
                     }))}
                     formik={formik}
                     onChangeCustom={handleChangeClub}
@@ -639,7 +643,19 @@ const Player = () => {
                     label="Giocatore"
                     name="player" // Cambia a 'player' se il campo si chiama 'player' in formikStats
                     value={selectedPlayerStatsId || ""}
-                    options={playerList.map((player) => ({ value: player.id, label: player.name + " " + player.surname }))}
+                    options={playerList.map((player) => ({
+                      value: player.id,
+                      label:
+                        player.name
+                          .split(" ")
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" ") +
+                        " " +
+                        player.surname
+                          .split(" ")
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" "),
+                    }))}
                     formik={formikStats}
                     onChangeCustom1={handleChangeStatsPlayer}
                     disabled={isShowCardStats.boolean}
@@ -809,10 +825,21 @@ const Player = () => {
                         <FontAwesomeIcon icon={faPerson} />
                       </span>
                       <span className={style.nameSurname}>
-                        {player.name} {player.surname}
+                        {player.name ? capitalizeWords(player.name) : ""} {player.surname ? capitalizeWords(player.surname) : ""}
                       </span>
-                      <span className={style.role}>{player.role}</span>
-                      <span className={style.club}>{`${player.club === null ? "Svincolato" : player.club?.name || player.club} `}</span>
+                      <span className={style.role}>{player.role ? capitalizeWords(player.role) : ""}</span>
+
+                      <span className={style.club}>
+                        {`${
+                          player.club === null
+                            ? "Svincolato"
+                            : player.club?.name
+                            ? capitalizeWords(player.club?.name)
+                            : player.club
+                            ? capitalizeWords(player.club)
+                            : ""
+                        } `}
+                      </span>
                     </Grid>
                     <Grid className={style.wrapperBtn}>
                       <Button className={style.btnEdit} onClick={() => recoverInfoPlayer(player)} variant="text">

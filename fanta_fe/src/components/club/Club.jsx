@@ -32,8 +32,9 @@ import {
   fetchListPlayerFailure,
 } from "../../../store/reducer/player.reducer";
 
-import { Formik, Form, Field, ErrorMessage, useFormik } from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
+import capitalizeWords from "../../utility/capitalizeFunction";
 
 const Club = () => {
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
@@ -205,6 +206,8 @@ const Club = () => {
     // Aggiungi qui la logica per cancellare il club
     dispatch(deleteClub(club));
     setIsRecoverList(true);
+    setShowInfoClub({});
+    formik.clean();
   };
 
   const handleSubmit = (values) => {
@@ -212,7 +215,6 @@ const Club = () => {
       if (editClub) {
         dispatch(updateClub(values));
         setIsUpdating(true);
-        // setShowInfoClub(values);
       } else {
         dispatch(addedClub(values));
         setIsUpdating(true);
@@ -224,12 +226,19 @@ const Club = () => {
     }
   };
 
+  // function capitalizeWords(string) {
+  //   return string
+  //     .split(" ")
+  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  //     .join(" ");
+  // }
+
   return (
     <Grid className={style.containerPageClub}>
       <Grid className={style.wrapperClub}>
         <Grid className={style.boxInput}>
           <Typography variant="h6" component="h2">
-            Crea club
+            {editClub ? "Modifica Club" : "Crea Club"}
           </Typography>
 
           <Grid className={style.wrapperTextInput}>
@@ -328,7 +337,7 @@ const Club = () => {
                       <span className={style.iconClubName}>
                         <FontAwesomeIcon icon={faShield} className={style.icon} />
                       </span>
-                      {club.name}
+                      {club.name ? capitalizeWords(club.name) : ""}
                     </Grid>
                     <Grid className={style.wrapperBtn}>
                       <Button className={style.btnEdit} onClick={() => recoverInfoClub(club)} variant="text">
@@ -358,28 +367,28 @@ const Club = () => {
                 <FontAwesomeIcon icon={faKaaba} />
                 <span>
                   Stadio:
-                  <span className={style.valueInfo}> {showInfoClub.stadium}</span>
+                  <span className={style.valueInfo}> {showInfoClub.stadium ? capitalizeWords(showInfoClub.stadium) : ""}</span>
                 </span>
               </Typography>
               <Typography className={style.nameInfo} variant="subtitle2" component="p">
                 <FontAwesomeIcon icon={faShieldHalved} />
                 <span>
                   Derby:
-                  <span className={style.valueInfo}>{showInfoClub.derby}</span>
+                  <span className={style.valueInfo}>{showInfoClub.derby ? capitalizeWords(showInfoClub.derby) : ""} </span>
                 </span>
               </Typography>
               <Typography className={style.nameInfo} variant="subtitle2" component="p">
                 <FontAwesomeIcon icon={faShirt} />
                 <span>
                   Colore maglia casa:
-                  <span className={style.valueInfo}>{showInfoClub.colors_home}</span>
+                  <span className={style.valueInfo}>{showInfoClub.colors_home ? capitalizeWords(showInfoClub.colors_home) : ""}</span>
                 </span>
               </Typography>
               <Typography className={style.nameInfo} variant="subtitle2" component="p">
                 <FontAwesomeIcon icon={faShirt} />
                 <span>
                   Colore maglia trasferta:
-                  <span className={style.valueInfo}>{showInfoClub.colors_away}</span>
+                  <span className={style.valueInfo}>{showInfoClub.colors_away ? capitalizeWords(showInfoClub.colors_away) : ""}</span>
                 </span>
               </Typography>
             </Grid>
@@ -388,7 +397,7 @@ const Club = () => {
 
         <Grid className={style.boxInfoPlayer}>
           <Typography variant="h6" component="h2">
-            Giocatori del club {selectedClubId?.name}
+            Giocatori del club {selectedClubId?.name ? capitalizeWords(selectedClubId?.name) : ""}
           </Typography>
 
           <Grid className={style.wrapperInfoClub}>
@@ -398,7 +407,8 @@ const Club = () => {
                   <Typography className={style.nameInfo} variant="subtitle2" component="p">
                     <FontAwesomeIcon icon={faPerson} />
                     <span>
-                      <span className={style.valueInfo}> {pl.name}</span> <span className={style.valueInfo}>{pl.surname}</span>
+                      <span className={style.valueInfo}> {pl.name ? capitalizeWords(pl.name) : ""}</span>{" "}
+                      <span className={style.valueInfo}>{pl.surname ? capitalizeWords(pl.surname) : ""}</span>
                     </span>
                   </Typography>
                 </Grid>
