@@ -3,9 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import style from "./playerStats.module.scss";
 import Grid from "@mui/material/Grid2";
-import { Button, Typography, TextField, Checkbox, FormControl, InputLabel, Select, MenuItem, FormControlLabel } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserInjured, faPerson, faStairs } from "@fortawesome/free-solid-svg-icons";
+import { Button, Typography } from "@mui/material";
+
 import {
   fetchListStatsPlayerStart,
   fetchListStatsPlayerSuccess,
@@ -61,7 +60,7 @@ const PlayerStats = () => {
               ...stat,
               playerName: player.name,
               playerSurname: player.surname,
-              club: player.club, // Assicurati che il club venga incluso
+              club: player.club,
             }
           : stat;
       });
@@ -73,7 +72,7 @@ const PlayerStats = () => {
           ...player,
           playerName: player.name,
           playerSurname: player.surname,
-          club: player.club, // Assicurati che il club venga incluso qui anche per i nuovi player
+          club: player.club,
         }));
       setUpdatedData(newData);
     }
@@ -89,21 +88,23 @@ const PlayerStats = () => {
   };
 
   const [isShowModal, setIsShowModal] = useState(false);
-  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
+  const [paramsId, setParamsId] = useState(null);
 
   const showModal = (par) => {
-    setParamsId(par); // Imposta l'id del club da eliminare
-    setIsShowModal(true); // Mostra il modale
+    setParamsId(par);
+    setIsShowModal(true);
   };
 
   const closeModal = () => {
     setIsShowModal(false);
-    setParamsId(null); // Resetta l'id selezionato
+    setParamsId(null);
   };
 
   const handleDeleteStats = (id) => {
     dispatch(deleteStats(id));
-    dispatch(setIsShow({ id: "", boolean: false }));
+    if (data.length === 1) {
+      dispatch(setIsShow({ id: "", boolean: false }));
+    }
   };
 
   return (
@@ -203,7 +204,6 @@ const PlayerStats = () => {
                     <Button onClick={() => handleEditStats(player.id)} variant="contained" className={style.btn}>
                       Modifica
                     </Button>
-                    {/* <Button variant="contained" className={style.btn} onClick={() => handleDeleteStats(player.id)}> */}
                     <Button variant="contained" className={style.btn} onClick={() => showModal(player.id)}>
                       Elimina
                     </Button>

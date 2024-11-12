@@ -1,0 +1,41 @@
+.wrapperModal {
+  [class*="MuiDialog-container"] {
+    [class*="MuiPaper-root"] {
+      // background-color: rgb(13, 255, 0);
+      min-width: 800px !important;
+      min-height: 500px !important;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+
+      @media (max-width: 768px) {
+        min-width: 0 !important;
+        min-height: 0 !important;
+      }
+    }
+  }
+
+  .modal {
+    margin: 0 auto;
+    flex: 1 0 auto;
+    padding: 0 24px;
+    width: 100%;
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      .gridItem {
+        display: flex;
+        flex-direction: column;
+      }
+      .gridItemFull {
+        grid-column: span 2;
+        .caption {
+          font-weight: bold;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}

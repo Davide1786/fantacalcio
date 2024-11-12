@@ -44,7 +44,7 @@ const Club = () => {
 
   const [selectedClubId, setSelectedClubId] = useState(null);
 
-  const [showInfoClub, setShowInfoClub] = useState({}); // Stato per controllare le info dei club
+  const [showInfoClub, setShowInfoClub] = useState({});
   const [editClub, setEditClub] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const dispatch = useDispatch();
@@ -195,22 +195,20 @@ const Club = () => {
   };
 
   const [isShowModal, setIsShowModal] = useState(false);
-  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
+  const [paramsId, setParamsId] = useState(null);
 
   const showModal = (par) => {
-    setParamsId(par); // Imposta l'id del club da eliminare
-    setIsShowModal(true); // Mostra il modale
+    setParamsId(par);
+    setIsShowModal(true);
   };
 
   const closeModal = () => {
     setIsShowModal(false);
-    setParamsId(null); // Resetta l'id selezionato
+    setParamsId(null);
   };
 
   const handleDeleteClub = (clubId) => {
-    // Riceve clubId come parametro
     if (clubId) {
-      // Filtra i giocatori associati al club specifico
       const playerDelete = playerList?.filter((player) => player.clubId === clubId);
 
       if (playerDelete.length > 0) {
@@ -219,12 +217,11 @@ const Club = () => {
         });
       }
 
-      // Cancella il club
       dispatch(deleteClub(clubId));
       setIsRecoverList(true);
       setShowInfoClub({});
       formik.clean();
-      closeModal(); // Chiudi il modale dopo l'eliminazione
+      closeModal();
     }
   };
 

@@ -7,7 +7,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Componente PortalModal
 
@@ -27,7 +27,7 @@ const messages = {
   },
 };
 const PortalModal = ({ isShowModal, onClose, handleDelete, paramsId, msg }) => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 

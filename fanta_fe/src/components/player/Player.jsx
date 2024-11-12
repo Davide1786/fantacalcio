@@ -47,10 +47,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrashCan, faPerson, faChartColumn } from "@fortawesome/free-solid-svg-icons";
 import { countryListAlpha2 } from "../../utility/nationality";
 import { useFormik } from "formik";
-import * as Yup from "yup"; // Se desideri aggiungere validazioni
+import * as Yup from "yup";
 import PortalSelect from "../portalSelect/PortalSelect";
 import capitalizeWords from "../../utility/capitalizeFunction";
 import PortalModal from "../portalModal/PortalModal";
+import PortalModalInfo from "../portalModal/PortalModalInfo";
 
 const Player = () => {
   const { isShowCardStats, isEditStats, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
@@ -67,7 +68,6 @@ const Player = () => {
     { id: "attaccante", name: "Attaccante" },
   ];
 
-  // Trasformiamo countryListAlpha2 in un array di opzioni
   const countryOptions = Object.entries(countryListAlpha2).map(([code, name]) => ({
     code,
     name,
@@ -82,14 +82,21 @@ const Player = () => {
   const [pasClubId, setPasClubId] = useState(null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
+  const [filteredPlayers, setFilteredPlayers] = useState(playerList);
+  const [activeRole, setActiveRole] = useState(null);
+  const [isShowModalInfo, setIsShowModalInfo] = useState(false);
+
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
+
   // api
   const fetchPlayers = () => async () => {
     dispatch(fetchListPlayerStart());
     try {
-      const responseData = await fetchListPlayer(); // Chiama l'API
-      dispatch(fetchListPlayerSuccess(responseData)); // Aggiorna lo stato con i dati
+      const responseData = await fetchListPlayer();
+      dispatch(fetchListPlayerSuccess(responseData));
     } catch (error) {
-      dispatch(fetchListPlayerFailure(error.message)); // Gestisce l'errore
+      dispatch(fetchListPlayerFailure(error.message));
     }
   };
 
@@ -224,7 +231,7 @@ const Player = () => {
       formik.setValues((prevState) => ({
         ...prevState,
         clubName: "Svincolato",
-        clubId: null, // Usa null per "svincolato"
+        clubId: null, // null per "svincolato"
       }));
     } else {
       const selectedClub = clubList.find((club) => club.id === selectedClubId);
@@ -279,7 +286,7 @@ const Player = () => {
       price_player: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
     }),
     onSubmit: (values, { resetForm }) => {
@@ -306,42 +313,42 @@ const Player = () => {
       match_vote: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       average_rating: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       red_card: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       yellow_card: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       number_of_match: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       number_goal_conceded: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       number_goal: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       number_assist: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
-        .positive("Deve essere positivo")
+        .min(0, "Deve essere 0 o maggiore")
         .integer("Deve essere un numero intero"),
       playerName: Yup.string().required("Campo obbligatorio"),
     }),
@@ -364,7 +371,6 @@ const Player = () => {
       setPasClubId(formik.values.selectedClubId);
       formik.setFieldValue("selectedClubId", "");
 
-      // Reset del form e stato
       resetForm({
         name: "",
         surname: "",
@@ -391,9 +397,6 @@ const Player = () => {
     formik.resetForm({ name: "", surname: "", age: "", nationality: "", role: "", price_player: "", info: "", clubName: "" });
     setEditPlayer(false);
   };
-
-  const [isShowModal, setIsShowModal] = useState(false);
-  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
 
   const showModal = (par) => {
     setParamsId(par); // Imposta l'id del club da eliminare
@@ -524,28 +527,36 @@ const Player = () => {
     setEditPlayerStats(false);
   };
 
-  const [filteredPlayers, setFilteredPlayers] = useState(playerList);
-  const [activeRole, setActiveRole] = useState(null);
-
   useEffect(() => {
-    // Aggiorna lo stato `test` quando `playerList` cambia
     setFilteredPlayers(playerList);
   }, [playerList]);
 
   const handleFilterRole = (role) => {
     if (activeRole === role) {
-      setActiveRole(null); // Disattiva filtro se è già attivo
+      setActiveRole(null);
       setFilteredPlayers(playerList);
     } else {
-      setActiveRole(role); // Attiva filtro
+      setActiveRole(role);
       setFilteredPlayers(playerList.filter((player) => player.role === role));
     }
   };
 
   const isFiltered = activeRole;
 
+  const showModalPlayer = (par) => {
+    setParamsId(par);
+    setIsShowModalInfo(true);
+  };
+
+  const closeModalInfo = () => {
+    setIsShowModalInfo(false);
+
+    setParamsId(null);
+  };
+
   return (
     <Grid className={style.containerPagePlayer}>
+      <PortalModalInfo isShowModal={isShowModalInfo} onClose={closeModalInfo} paramsId={paramsId} />
       <PortalModal isShowModal={isShowModal} onClose={closeModal} handleDelete={handleDeletePlayer} paramsId={paramsId} msg={"player"} />
       <Grid className={style.wrapperPlayer}>
         <Grid className={style.boxInput}>
@@ -882,7 +893,7 @@ const Player = () => {
                         <span className={style.icon}>
                           <FontAwesomeIcon icon={faPerson} />
                         </span>
-                        <span className={style.nameSurname}>
+                        <span className={style.nameSurname} onClick={() => showModalPlayer(player)}>
                           {player.name ? capitalizeWords(player.name) : ""} {player.surname ? capitalizeWords(player.surname) : ""}
                         </span>
                         <span className={style.role}>{player.role ? capitalizeWords(player.role) : ""}</span>
