@@ -524,6 +524,26 @@ const Player = () => {
     setEditPlayerStats(false);
   };
 
+  const [filteredPlayers, setFilteredPlayers] = useState(playerList);
+  const [activeRole, setActiveRole] = useState(null);
+
+  useEffect(() => {
+    // Aggiorna lo stato `test` quando `playerList` cambia
+    setFilteredPlayers(playerList);
+  }, [playerList]);
+
+  const handleFilterRole = (role) => {
+    if (activeRole === role) {
+      setActiveRole(null); // Disattiva filtro se è già attivo
+      setFilteredPlayers(playerList);
+    } else {
+      setActiveRole(role); // Attiva filtro
+      setFilteredPlayers(playerList.filter((player) => player.role === role));
+    }
+  };
+
+  const isFiltered = activeRole;
+
   return (
     <Grid className={style.containerPagePlayer}>
       <PortalModal isShowModal={isShowModal} onClose={closeModal} handleDelete={handleDeletePlayer} paramsId={paramsId} msg={"player"} />
@@ -677,18 +697,20 @@ const Player = () => {
                   />
                 </Grid>
 
-                <TextField
-                  size="small"
-                  className={style.input}
-                  id="votoPartita"
-                  name="match_vote"
-                  label="Voto Partita"
-                  variant="outlined"
-                  value={formikStats.values.match_vote}
-                  onChange={formikStats.handleChange}
-                  error={formikStats.touched.match_vote && Boolean(formikStats.errors.match_vote)}
-                  helperText={formikStats.touched.match_vote && formikStats.errors.match_vote}
-                />
+                <Grid className={style.field_container}>
+                  <TextField
+                    size="small"
+                    className={style.input}
+                    id="votoPartita"
+                    name="match_vote"
+                    label="Voto Partita"
+                    variant="outlined"
+                    value={formikStats.values.match_vote}
+                    onChange={formikStats.handleChange}
+                    error={formikStats.touched.match_vote && Boolean(formikStats.errors.match_vote)}
+                    helperText={formikStats.touched.match_vote && formikStats.errors.match_vote}
+                  />
+                </Grid>
 
                 <Grid className={style.field_container}>
                   <TextField
@@ -829,49 +851,70 @@ const Player = () => {
         <Grid className={style.boxList}>
           <Grid className={style.wrapperListPlayer}>
             <Typography variant="h6" component="h2" style={{ color: "black" }}>
-              Lista dei giocatori
+              <div className={style.boxfilters}>
+                <span>Lista dei giocatori</span>{" "}
+                <div className={style.wrapperfilters}>
+                  <div className={style.filters}>
+                    <div className={style.box} onClick={() => handleFilterRole("portiere")}>
+                      P
+                    </div>
+                    <div className={style.box} onClick={() => handleFilterRole("difensore")}>
+                      D
+                    </div>
+                    <div className={style.box} onClick={() => handleFilterRole("mediano")}>
+                      M
+                    </div>
+                    <div className={style.box} onClick={() => handleFilterRole("attaccante")}>
+                      A
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Typography>
-            {playerList?.map((player) => (
-              <Grid className={style.boxListPlayer} key={player.id}>
-                <ul className={style.listPlayer}>
-                  <li className={style.singlePlayer}>
-                    <Grid className={style.namePlayer}>
-                      <span className={style.icon}>
-                        <FontAwesomeIcon icon={faPerson} />
-                      </span>
-                      <span className={style.nameSurname}>
-                        {player.name ? capitalizeWords(player.name) : ""} {player.surname ? capitalizeWords(player.surname) : ""}
-                      </span>
-                      <span className={style.role}>{player.role ? capitalizeWords(player.role) : ""}</span>
+            {isFiltered && filteredPlayers.length === 0 ? (
+              <Typography variant="h6">Nessun risultato trovato</Typography>
+            ) : (
+              filteredPlayers?.map((player) => (
+                <Grid className={style.boxListPlayer} key={player.id}>
+                  <ul className={style.listPlayer}>
+                    <li className={style.singlePlayer}>
+                      <Grid className={style.namePlayer}>
+                        <span className={style.icon}>
+                          <FontAwesomeIcon icon={faPerson} />
+                        </span>
+                        <span className={style.nameSurname}>
+                          {player.name ? capitalizeWords(player.name) : ""} {player.surname ? capitalizeWords(player.surname) : ""}
+                        </span>
+                        <span className={style.role}>{player.role ? capitalizeWords(player.role) : ""}</span>
 
-                      <span className={style.club}>
-                        {`${
-                          player.club === null
-                            ? "Svincolato"
-                            : player.club?.name
-                            ? capitalizeWords(player.club?.name)
-                            : player.club
-                            ? capitalizeWords(player.club)
-                            : ""
-                        } `}
-                      </span>
-                    </Grid>
-                    <Grid className={style.wrapperBtn}>
-                      <Button className={style.btnEdit} onClick={() => recoverInfoPlayer(player)} variant="text">
-                        <FontAwesomeIcon icon={faPenToSquare} />
-                      </Button>
-                      <Button className={style.btnEdit} onClick={() => togglePlayersList(player)} variant="text">
-                        <FontAwesomeIcon icon={faChartColumn} />
-                      </Button>
-                      {/* <Button className={style.btnDelete} onClick={() => handleDeletePlayer(player)} variant="text"> */}
-                      <Button className={style.btnDelete} onClick={() => showModal(player)} variant="text">
-                        <FontAwesomeIcon icon={faTrashCan} />
-                      </Button>
-                    </Grid>
-                  </li>
-                </ul>
-              </Grid>
-            ))}
+                        <span className={style.club}>
+                          {`${
+                            player.club === null
+                              ? "Svincolato"
+                              : player.club?.name
+                              ? capitalizeWords(player.club?.name)
+                              : player.club
+                              ? capitalizeWords(player.club)
+                              : ""
+                          } `}
+                        </span>
+                      </Grid>
+                      <Grid className={style.wrapperBtn}>
+                        <Button className={style.btnEdit} onClick={() => recoverInfoPlayer(player)} variant="text">
+                          <FontAwesomeIcon icon={faPenToSquare} />
+                        </Button>
+                        <Button className={style.btnEdit} onClick={() => togglePlayersList(player)} variant="text">
+                          <FontAwesomeIcon icon={faChartColumn} />
+                        </Button>
+                        <Button className={style.btnDelete} onClick={() => showModal(player)} variant="text">
+                          <FontAwesomeIcon icon={faTrashCan} />
+                        </Button>
+                      </Grid>
+                    </li>
+                  </ul>
+                </Grid>
+              ))
+            )}
           </Grid>
         </Grid>
       </Grid>

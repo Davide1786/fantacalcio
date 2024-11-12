@@ -162,6 +162,34 @@
         overflow: scroll;
       }
       .wrapperListPlayer {
+        .boxfilters {
+          display: flex;
+          justify-content: space-between;
+
+          .wrapperfilters {
+            width: 80px;
+
+            .filters {
+              display: flex;
+              width: 100%;
+              height: 100%;
+              align-items: center;
+              justify-content: space-between;
+              padding-right: 7px;
+
+              .box {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                border: 1px solid #2abf89;
+                font-size: 8px;
+              }
+            }
+          }
+        }
         max-height: 400px;
         height: 100%;
         overflow: scroll;
