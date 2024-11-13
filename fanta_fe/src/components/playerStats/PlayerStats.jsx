@@ -29,7 +29,7 @@ const PlayerStats = () => {
   const [paramsId, setParamsId] = useState(null);
   const [updatedData, setUpdatedData] = useState([]);
 
-  const recoveStats = () => async () => {
+  const recoveStats = async () => {
     dispatch(fetchListStatsPlayerStart());
     try {
       const response = await fetchPlayerStats();
@@ -39,7 +39,7 @@ const PlayerStats = () => {
     }
   };
 
-  const deleteStats = (payload) => async () => {
+  const deleteStats = async (payload) => {
     dispatch(deletePlayerStatsStart());
     try {
       const response = await deleteStatsPlayer(payload);
@@ -50,7 +50,7 @@ const PlayerStats = () => {
   };
 
   useEffect(() => {
-    dispatch(recoveStats());
+    recoveStats();
   }, []);
 
   useEffect(() => {
@@ -102,10 +102,10 @@ const PlayerStats = () => {
   const handleDeleteStats = (id) => {
     if (data.length === 1) {
       dispatch(setIsShow({ id: "", boolean: false }));
-      dispatch(deleteStats(id));
+      deleteStats(id);
     } else {
       dispatch(setIsEmpty(true));
-      dispatch(deleteStats(id));
+      deleteStats(id);
     }
   };
 

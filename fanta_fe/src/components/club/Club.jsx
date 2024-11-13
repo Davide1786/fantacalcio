@@ -36,20 +36,25 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import capitalizeWords from "../../utility/capitalizeFunction";
 import PortalModal from "../portalModal/PortalModal";
+import PortalModalError from "../portalModal/PortalModalError";
 
 const Club = () => {
   const { clubList, selectedClub, status } = useSelector((state) => state.club);
   const { playerList } = useSelector((state) => state.player);
   const { data } = useSelector((state) => state.statsPlayers);
+  const dispatch = useDispatch();
 
   const [selectedClubId, setSelectedClubId] = useState(null);
-
   const [showInfoClub, setShowInfoClub] = useState({});
   const [editClub, setEditClub] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const dispatch = useDispatch();
+  const [isRecoverList, setIsRecoverList] = useState(false);
+  const [isShowModal, setIsShowModal] = useState(false);
+  const [isShowModalError, setIsShowModalError] = useState(false);
+  const [paramsId, setParamsId] = useState(null);
+  const [msg, setMsg] = useState("");
 
-  const fetchClub = (payload) => async (dispatch) => {
+  const fetchClub = async (payload) => {
     dispatch(fetchSingleClubStart());
     try {
       const responseData = await fetchSingleClub(payload);
@@ -59,7 +64,7 @@ const Club = () => {
     }
   };
 
-  const fetchClubs = () => async (dispatch) => {
+  const fetchClubs = async () => {
     dispatch(fetchClubListStart());
     try {
       const responseData = await fetchClubList();
@@ -69,27 +74,35 @@ const Club = () => {
     }
   };
 
-  const addedClub = (payload) => async (dispatch) => {
+  const addedClub = async (payload) => {
     dispatch(addNewClubStart());
     try {
       const responseData = await addedSingleClub(payload);
       dispatch(addNewClubSuccess(responseData));
+      formik.resetForm();
+      setEditClub(false);
     } catch (error) {
       dispatch(addNewClubFailure(error.message));
+      setIsShowModalError(true);
+      setMsg("club");
     }
   };
 
-  const updateClub = (payload) => async (dispatch) => {
+  const updateClub = async (payload) => {
     dispatch(updateClubStart());
     try {
       const responseData = await updateSingleClub(payload);
       dispatch(updateClubSuccess(responseData));
+      formik.resetForm();
+      setEditClub(false);
     } catch (error) {
       dispatch(updateClubFailure(error.message));
+      setIsShowModalError(true);
+      setMsg("clubEdit");
     }
   };
 
-  const fetchPlayers = () => async () => {
+  const fetchPlayers = async () => {
     dispatch(fetchListPlayerStart());
     try {
       const responseData = await fetchListPlayer(); // Chiama l'API
@@ -99,7 +112,7 @@ const Club = () => {
     }
   };
 
-  const deleteClub = (payload) => async () => {
+  const deleteClub = async (payload) => {
     dispatch(deleteClubStart());
     try {
       const response = await deleteClubApi(payload);
@@ -111,21 +124,28 @@ const Club = () => {
 
   // Uso nel componente
   useEffect(() => {
-    dispatch(fetchClubs());
+    fetchClubs();
   }, []);
 
   useEffect(() => {
     if (selectedClubId) {
-      dispatch(fetchClub(selectedClubId.id));
+      fetchClub(selectedClubId.id);
     }
   }, [playerList]);
 
   useEffect(() => {
     if (isUpdating) {
       setIsUpdating(false);
-      dispatch(fetchClubs());
+      fetchClubs();
     }
   }, [isUpdating]);
+
+  useEffect(() => {
+    if (isRecoverList) {
+      fetchPlayers();
+      setIsRecoverList(false);
+    }
+  }, [isRecoverList]);
 
   const formik = useFormik({
     initialValues: {
@@ -136,7 +156,10 @@ const Club = () => {
       colors_away: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string().required("Campo obbligatorio"),
+      // name: Yup.string().required("Campo obbligatorio"),
+      name: Yup.string()
+        .matches(/^(?!\s)(?!.*\s$)[A-Za-zàèéìòùÀÈÉÌÒÙ\s-]+$/, "Il nome non può iniziare o finire con uno spazio")
+        .required("Campo obbligatorio"),
       stadium: Yup.string().required("Campo obbligatorio"),
       derby: Yup.string().required("Campo obbligatorio"),
       colors_home: Yup.string().required("Campo obbligatorio"),
@@ -163,7 +186,7 @@ const Club = () => {
       setSelectedClubId(null);
     } else {
       setSelectedClubId(club);
-      dispatch(fetchClub(club.id));
+      fetchClub(club.id);
     }
   };
 
@@ -172,17 +195,8 @@ const Club = () => {
       setEditClub(false);
       formik.resetForm({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
     }
-
     formik.resetForm({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
   };
-
-  const [isRecoverList, setIsRecoverList] = useState(false);
-  useEffect(() => {
-    if (isRecoverList) {
-      dispatch(fetchPlayers());
-      setIsRecoverList(false);
-    }
-  }, [isRecoverList]);
 
   const updatePlayer = (payload) => async (dispatch) => {
     dispatch(updatePlayerStart());
@@ -194,12 +208,13 @@ const Club = () => {
     }
   };
 
-  const [isShowModal, setIsShowModal] = useState(false);
-  const [paramsId, setParamsId] = useState(null);
-
   const showModal = (par) => {
     setParamsId(par);
     setIsShowModal(true);
+  };
+
+  const closeModalError = () => {
+    setIsShowModalError(false);
   };
 
   const closeModal = () => {
@@ -217,7 +232,7 @@ const Club = () => {
         });
       }
 
-      dispatch(deleteClub(clubId));
+      deleteClub(clubId);
       setIsRecoverList(true);
       setShowInfoClub({});
       formik.clean();
@@ -225,24 +240,25 @@ const Club = () => {
     }
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     try {
       if (editClub) {
-        dispatch(updateClub(values));
+        updateClub(values);
         setIsUpdating(true);
+        setShowInfoClub(values);
       } else {
-        dispatch(addedClub(values));
-        setIsUpdating(true);
+        addedClub(values);
       }
-      formik.resetForm({ name: "", stadium: "", derby: "", colors_home: "", colors_away: "" });
-      setEditClub(false);
     } catch (error) {
       console.error("Errore durante l'invio dei dati:", error);
+      setIsShowModalError(true);
+      formik.setErrors({ general: error.message });
     }
   };
 
   return (
     <Grid className={style.containerPageClub}>
+      <PortalModalError isShowModal={isShowModalError} onClose={closeModalError} msg={msg} />
       <PortalModal isShowModal={isShowModal} onClose={closeModal} handleDelete={handleDeleteClub} paramsId={paramsId} msg={"club"} />
       <Grid className={style.wrapperClub}>
         <Grid className={style.boxInput}>
@@ -355,7 +371,6 @@ const Club = () => {
                       <Button className={style.btnInfo} onClick={() => toggleInfoClub(club)} variant="text">
                         <FontAwesomeIcon icon={faCircleQuestion} />
                       </Button>
-                      {/* <Button className={style.btnDelete} onClick={() => handleDeleteClub(club.id)} variant="text"> */}
                       <Button className={style.btnDelete} onClick={() => showModal(club.id)} variant="text">
                         <FontAwesomeIcon icon={faTrashCan} />
                       </Button>

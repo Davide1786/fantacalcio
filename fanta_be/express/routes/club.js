@@ -34,6 +34,23 @@ async function create(req, res) {
     // const newClub = await models.club.create(req.body);
     // res.status(201).json(newClub); // Restituisce il club creato
 
+    const normalizedName = name ? name.trim().toLowerCase() : "";
+
+    // Verifica se un altro giocatore esiste con lo stesso nome e cognome
+    const existingClub = await models.club.findOne({
+      where: {
+        name: normalizedName,
+        id: { [Op.ne]: id }, // Esclude l'ID del giocatore corrente
+      },
+    });
+
+    // Controlla se esiste già un club con lo stesso nome
+    // const existingClub = await models.club.findOne({ where: { name } });
+
+    if (existingClub) {
+      return res.status(409).json({ message: "Un club con lo stesso nome esiste già" });
+    }
+
     // Creazione del club
     const newClub = await models.club.create({
       name,

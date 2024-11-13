@@ -53,12 +53,13 @@ import PortalSelect from "../portalSelect/PortalSelect";
 import capitalizeWords from "../../utility/capitalizeFunction";
 import PortalModal from "../portalModal/PortalModal";
 import PortalModalInfo from "../portalModal/PortalModalInfo";
+import PortalModalError from "../portalModal/PortalModalError";
 
 const Player = () => {
   const { isShowCardStats, isEditStats, selectedPlayerStatsId, isEmpty } = useSelector((state) => state.statsPlayers);
   const { playerList } = useSelector((state) => state.player);
   const { data } = useSelector((state) => state.statsPlayers);
-  const { clubList, selectedClub, status } = useSelector((state) => state.club);
+  const { clubList } = useSelector((state) => state.club);
 
   const dispatch = useDispatch();
 
@@ -89,9 +90,11 @@ const Player = () => {
 
   const [isShowModal, setIsShowModal] = useState(false);
   const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
+  const [isShowModalError, setIsShowModalError] = useState(false);
+  const [msg, setMsg] = useState("");
 
   // api
-  const fetchPlayers = () => async () => {
+  const fetchPlayers = async () => {
     dispatch(fetchListPlayerStart());
     try {
       const responseData = await fetchListPlayer();
@@ -101,27 +104,37 @@ const Player = () => {
     }
   };
 
-  const addPlayer = (payload) => async (dispatch) => {
+  const addPlayer = async (payload) => {
     dispatch(addNewPlayerStart());
     try {
       const responseData = await addSinglePlayer(payload);
       dispatch(addNewPlayerSuccess(responseData));
+      formik.resetForm();
+      formik.setFieldValue("selectedClubId", "");
+      setEditPlayer(false);
     } catch (error) {
       dispatch(addNewPlayerFailure(error.message));
+      setIsShowModalError(true);
+      setMsg("player");
     }
   };
 
-  const updatePlayer = (payload) => async (dispatch) => {
+  const updatePlayer = async (payload) => {
     dispatch(updatePlayerStart());
     try {
       const responseData = await updateSinglePlayer(payload);
       dispatch(updatePlayerSuccess(responseData));
+      formik.resetForm();
+      formik.setFieldValue("selectedClubId", "");
+      setEditPlayer(false);
     } catch (error) {
       dispatch(updatePlayerFailure(error.message));
+      setIsShowModalError(true);
+      setMsg("playerEdit");
     }
   };
 
-  const deletePlayer = (payload) => async () => {
+  const deletePlayer = async (payload) => {
     dispatch(deletePlayerStart());
     try {
       const response = await deletePlayerApi(payload);
@@ -131,7 +144,7 @@ const Player = () => {
     }
   };
 
-  const addStats = (payload) => async (dispatch) => {
+  const addStats = async (payload) => {
     dispatch(addPlayerStatsStart());
     try {
       const responseData = await addStatsPlayer(payload);
@@ -141,7 +154,7 @@ const Player = () => {
     }
   };
 
-  const editStats = (payload) => async (dispatch) => {
+  const editStats = async (payload) => {
     dispatch(editPlayerStatsStart());
     try {
       const responseData = await editStatsPlayer(payload);
@@ -151,7 +164,7 @@ const Player = () => {
     }
   };
 
-  const recoverSingolStats = (payload) => async (dispatch) => {
+  const recoverSingolStats = async (payload) => {
     dispatch(singlePlayerStatsStart());
     try {
       const response = await fetchPlayerSingleStats(payload);
@@ -161,7 +174,7 @@ const Player = () => {
     }
   };
 
-  const deleteStats = (payload) => async () => {
+  const deleteStats = async (payload) => {
     dispatch(deletePlayerStatsStart());
     try {
       const response = await deleteStatsPlayer(payload);
@@ -172,14 +185,14 @@ const Player = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchPlayers());
+    fetchPlayers();
   }, []);
 
   // after edit player
   useEffect(() => {
     if (isUpdating) {
       setIsUpdating(false);
-      dispatch(fetchPlayers());
+      fetchPlayers();
     }
   }, [isUpdating]);
 
@@ -268,8 +281,14 @@ const Player = () => {
       selectedClubId: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string().required("Campo obbligatorio"),
-      surname: Yup.string().required("Campo obbligatorio"),
+      // name: Yup.string().required("Campo obbligatorio"),
+      name: Yup.string()
+        .matches(/^(?!\s)(?!.*\s$)[A-Za-zàèéìòùÀÈÉÌÒÙ\s-]+$/, "Il nome non può iniziare o finire con uno spazio")
+        .required("Campo obbligatorio"),
+      surname: Yup.string()
+        .matches(/^(?!\s)(?!.*\s$)[A-Za-zàèéìòùÀÈÉÌÒÙ\s-]+$/, "Il nome non può iniziare o finire con uno spazio")
+        .required("Campo obbligatorio"),
+      // surname: Yup.string().required("Campo obbligatorio"),
       age: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
@@ -365,31 +384,20 @@ const Player = () => {
     },
   });
 
-  const sendData = async (values, resetForm) => {
+  const sendData = async (values) => {
     try {
       if (editPlayer) {
-        dispatch(updatePlayer(values));
+        updatePlayer(values);
         setIsUpdating(true);
       } else {
-        dispatch(addPlayer(values));
+        addPlayer(values);
         setIsUpdating(true);
         setEditPlayer(true);
       }
-
       setPasClubId(formik.values.selectedClubId);
-      formik.setFieldValue("selectedClubId", "");
+      // formik.setFieldValue("selectedClubId", "");
 
-      resetForm({
-        name: "",
-        surname: "",
-        age: "",
-        nationality: "",
-        role: "",
-        price_player: "",
-        info: "",
-        clubName: "",
-      });
-      setEditPlayer(false);
+      // setEditPlayer(false);
     } catch (error) {
       console.error("Errore durante l'invio dei dati:", error);
     }
@@ -421,10 +429,10 @@ const Player = () => {
 
     if (playerStatsDelete && playerStatsDelete.length > 0) {
       playerStatsDelete.forEach((stat) => {
-        dispatch(deleteStats(stat.id));
+        deleteStats(stat.id);
       });
     }
-    dispatch(deletePlayer(player));
+    deletePlayer(player);
     formik.handleClean();
     formikStats.cleanStats();
     dispatch(setIsShow({ id: "", boolean: false }));
@@ -450,12 +458,12 @@ const Player = () => {
   const sendDataStat = async (values, resetForm) => {
     try {
       if (editPlayerStats) {
-        dispatch(editStats(values));
+        editStats(values);
         setIsUpdating(true);
       } else if (editPlayerStats && isEditStats.boolean) {
         dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       } else {
-        dispatch(addStats({ ...values, clubId: pasClubId }));
+        addStats({ ...values, clubId: pasClubId });
         setIsUpdating(true);
         dispatch(setSelectedPlayerStatsId(isEditStats.id.id));
       }
@@ -485,11 +493,11 @@ const Player = () => {
     if (oldIdStats === player.id) {
       // Se il giocatore selezionato è lo stesso, chiudi la vista delle statistiche
       dispatch(setIsShow({ id: player.id, boolean: !isShowCardStats.boolean }));
-      dispatch(recoverSingolStats(player));
+      recoverSingolStats(player);
     } else {
       // Se il giocatore è diverso, aggiorna oldIdStats e recupera le nuove statistiche
       setOldIdStats(player.id);
-      dispatch(recoverSingolStats(player));
+      recoverSingolStats(player);
       dispatch(setIsShow({ id: player.id, boolean: true }));
     }
   };
@@ -561,8 +569,13 @@ const Player = () => {
     setParamsId(null);
   };
 
+  const closeModalError = () => {
+    setIsShowModalError(false);
+  };
+
   return (
     <Grid className={style.containerPagePlayer}>
+      <PortalModalError isShowModal={isShowModalError} onClose={closeModalError} msg={msg} />
       <PortalModalInfo isShowModal={isShowModalInfo} onClose={closeModalInfo} paramsId={paramsId} />
       <PortalModal isShowModal={isShowModal} onClose={closeModal} handleDelete={handleDeletePlayer} paramsId={paramsId} msg={"player"} />
       <Grid className={style.wrapperPlayer}>

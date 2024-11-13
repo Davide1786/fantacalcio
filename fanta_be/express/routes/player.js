@@ -1,5 +1,6 @@
 const { models } = require("../../sequelize"); // Assicurati di importare i modelli
 const { getIdParam } = require("../helpers"); // Assicurati di avere questa funzione per gestire gli ID
+const { Op } = require("sequelize");
 
 // recupera tutti i player
 async function getAll(req, res) {
@@ -21,25 +22,22 @@ async function getAll(req, res) {
 
 // crea un singolo player
 async function create(req, res) {
-  // Log per vedere cosa arriva nel body
-  console.log("Body della richiesta:", req.body);
-
   const { name, surname, age, nationality, role, price_player, info, clubName } = req.body;
 
-  // 1. Verifica che l'ID non sia stato fornito manualmente
+  // Verifica che l'ID non sia fornito manualmente
   if (req.body.id) {
     return res.status(400).send("Bad request: L'ID non deve essere fornito, poiché viene determinato automaticamente dal database.");
   }
 
   try {
-    // 2. Validazione dei campi
+    // Validazione dei campi richiesti
     if (!name || !surname || !age || !nationality || !role || !price_player || !info || clubName === undefined) {
       return res.status(400).json({ message: "Campi mancanti" });
     }
 
     let clubId = null;
 
-    // 3. Se il club non è "Svincolato", cerchiamo il club per nome
+    // Cerca il club per nome se non è "Svincolato"
     if (clubName !== "Svincolato") {
       const foundClub = await models.club.findOne({ where: { name: clubName } });
 
@@ -51,7 +49,13 @@ async function create(req, res) {
       clubId = foundClub.id;
     }
 
-    // 4. Creazione del giocatore con clubId null se "Svincolato"
+    // Verifica l'esistenza di un giocatore con lo stesso nome e cognome
+    const existingPlayer = await models.player.findOne({ where: { name, surname } });
+    if (existingPlayer) {
+      return res.status(409).json({ message: "Un giocatore con lo stesso nome e cognome esiste già" });
+    }
+
+    // Creazione del giocatore
     const newPlayer = await models.player.create({
       name,
       surname,
@@ -60,14 +64,14 @@ async function create(req, res) {
       role,
       price_player,
       info,
-      clubId: clubId,
+      clubId: clubId, // Può essere null se "Svincolato"
     });
 
-    // 5. Risposta con il giocatore creato
+    // Risposta con il giocatore creato
     res.status(201).json(newPlayer);
   } catch (error) {
     console.error("Errore nella creazione del giocatore:", error);
-    res.status(500).json({ error: "Errore nella creazione del giocatore" });
+    res.status(500).json({ error: "Errore interno nella creazione del giocatore" });
   }
 }
 
@@ -101,9 +105,27 @@ async function update(req, res) {
   }
 
   try {
+    // Trova il giocatore per ID
     const player = await models.player.findByPk(id);
     if (!player) {
       return res.status(404).json({ message: "Giocatore non trovato!" });
+    }
+
+    // Normalizza i valori di nome e cognome
+    const normalizedName = name ? name.trim().toLowerCase() : "";
+    const normalizedSurname = surname ? surname.trim().toLowerCase() : "";
+
+    // Verifica se un altro giocatore esiste con lo stesso nome e cognome
+    const existingPlayer = await models.player.findOne({
+      where: {
+        name: normalizedName,
+        surname: normalizedSurname,
+        id: { [Op.ne]: id }, // Esclude l'ID del giocatore corrente
+      },
+    });
+
+    if (existingPlayer) {
+      return res.status(409).json({ message: "Un giocatore con lo stesso nome e cognome esiste già." });
     }
 
     // Se `clubId` è un numero valido, cerca il club. Altrimenti, salta questo controllo.
@@ -130,6 +152,7 @@ async function update(req, res) {
     }
     if (clubName !== undefined) updateData.clubName = clubName;
 
+    // Esegui l'aggiornamento del giocatore
     await player.update(updateData);
 
     res.status(200).json({

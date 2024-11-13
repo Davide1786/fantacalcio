@@ -9,8 +9,6 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 
-// Componente PortalModal
-
 const messages = {
   club: {
     title: "Eliminazione del club",
