@@ -40,7 +40,7 @@ async function create(req, res) {
     const existingClub = await models.club.findOne({
       where: {
         name: normalizedName,
-        id: { [Op.ne]: id }, // Esclude l'ID del giocatore corrente
+        // id: { [Op.ne]: id }, // Esclude l'ID del giocatore correntes
       },
     });
 
