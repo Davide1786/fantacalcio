@@ -4,16 +4,14 @@ module.exports = function (sequelize) {
   sequelize.define("statPlayer", {
     match_vote: {
       type: DataTypes.INTEGER,
-      // allowNull: false, // Rende il campo obbligatorio (non può essere null)
-      defaultValue: 0, // Imposta 0 come valore predefinito
+      defaultValue: 0,
       validate: {
-        min: 0, // Convalida che il valore non sia negativo (almeno 0)
-        // max: 10, // Convalida che il valore non superi 10
+        min: 0,
       },
     },
     average_rating: {
       type: DataTypes.DOUBLE(10, 2),
-      defaultValue: 0, // Imposta 0 come valore predefinito
+      defaultValue: 0,
       validate: {
         min: 0,
       },
@@ -61,15 +59,10 @@ module.exports = function (sequelize) {
     },
     number_assist: {
       type: DataTypes.INTEGER,
-      defaultValue: 0, // Imposta 0 come valore predefinito
+      defaultValue: 0,
       validate: {
-        min: 0, // Convalida che il valore non sia negativo (almeno 0)
+        min: 0,
       },
     },
-    // id_player: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    // },
-    // playerId: { type: DataTypes.TEXT },
   });
 };

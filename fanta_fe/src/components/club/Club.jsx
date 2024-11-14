@@ -39,9 +39,8 @@ import PortalModal from "../portalModal/PortalModal";
 import PortalModalError from "../portalModal/PortalModalError";
 
 const Club = () => {
-  const { clubList, selectedClub, status } = useSelector((state) => state.club);
+  const { clubList, selectedClub } = useSelector((state) => state.club);
   const { playerList } = useSelector((state) => state.player);
-  const { data } = useSelector((state) => state.statsPlayers);
   const dispatch = useDispatch();
 
   const [selectedClubId, setSelectedClubId] = useState(null);
@@ -105,10 +104,10 @@ const Club = () => {
   const fetchPlayers = async () => {
     dispatch(fetchListPlayerStart());
     try {
-      const responseData = await fetchListPlayer(); // Chiama l'API
-      dispatch(fetchListPlayerSuccess(responseData)); // Aggiorna lo stato con i dati
+      const responseData = await fetchListPlayer();
+      dispatch(fetchListPlayerSuccess(responseData));
     } catch (error) {
-      dispatch(fetchListPlayerFailure(error.message)); // Gestisce l'errore
+      dispatch(fetchListPlayerFailure(error.message));
     }
   };
 
@@ -122,7 +121,6 @@ const Club = () => {
     }
   };
 
-  // Uso nel componente
   useEffect(() => {
     fetchClubs();
   }, []);
@@ -156,7 +154,6 @@ const Club = () => {
       colors_away: "",
     },
     validationSchema: Yup.object({
-      // name: Yup.string().required("Campo obbligatorio"),
       name: Yup.string()
         .matches(/^(?!\s)(?!.*\s$)[A-Za-zàèéìòùÀÈÉÌÒÙ\s-]+$/, "Il nome non può iniziare o finire con uno spazio")
         .required("Campo obbligatorio"),
@@ -170,13 +167,11 @@ const Club = () => {
     },
   });
 
-  // Recupera i dati di un club e li imposta nel form per la modifica
   const recoverInfoClub = (club) => {
     formik.setValues(club);
     setEditClub(true);
   };
 
-  // Alterna la visibilità delle informazioni del club selezionato
   const toggleInfoClub = (club) => {
     setShowInfoClub((prev) => (prev.id !== club.id ? club : {}));
   };

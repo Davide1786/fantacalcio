@@ -35,12 +35,12 @@ const PortalModal = ({ isShowModal, onClose, handleDelete, paramsId, msg }) => {
 
   const handleClose = () => {
     setOpen(false);
-    onClose(); // Chiama onClose per aggiornare anche isShowModal nel componente principale
+    onClose();
   };
 
   const handleConfirmDelete = () => {
-    handleDelete(paramsId); // Passa paramsId a handleDelete
-    handleClose(); // Chiudi il dialogo
+    handleDelete(paramsId);
+    handleClose();
   };
 
   return (

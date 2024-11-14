@@ -1,4 +1,4 @@
-const { models } = require("../../sequelize"); // Assicurati di importare i modelli
+const { models } = require("../../sequelize");
 
 async function create(req, res) {
   const { name, surname, email, nickname } = req.body;

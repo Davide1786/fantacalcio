@@ -10,7 +10,7 @@ module.exports = function (sequelize) {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        min: 0, // Assicurarsi che il numero di giocatori sia positivo
+        min: 0,
         max: 25,
       },
     },

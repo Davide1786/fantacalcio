@@ -39,7 +39,7 @@ export const editStatsPlayer = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 // add statistica
@@ -53,7 +53,7 @@ export const addStatsPlayer = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 
@@ -63,7 +63,7 @@ export const deleteStatsPlayer = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 
@@ -88,12 +88,12 @@ export const addSinglePlayer = async (payload) => {
       role: payload.role,
       price_player: payload.price_player,
       info: payload.info,
-      clubName: payload.clubName, // Usa il nome del club dall'oggetto `club`
+      clubName: payload.clubName,
     });
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 
@@ -120,7 +120,7 @@ export const updateSinglePlayer = async (payload, isRelease = false) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 
@@ -130,7 +130,7 @@ export const deletePlayerApi = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 
@@ -168,7 +168,7 @@ export const addedSingleClub = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 
@@ -185,7 +185,7 @@ export const updateSingleClub = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };
 
@@ -195,6 +195,6 @@ export const deleteClubApi = async (payload) => {
     return response.data;
   } catch (error) {
     console.error("Error updating data:", error);
-    throw error; // Lancia l'errore per gestirlo nel thunk
+    throw error;
   }
 };

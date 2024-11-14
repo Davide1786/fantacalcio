@@ -103,7 +103,6 @@
               grid-template-columns: repeat(2, 1fr);
 
               .nameClub {
-                // user-select: none;
                 cursor: pointer;
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 
@@ -112,9 +111,9 @@
 
                   .icon {
                     path {
-                      fill: transparent; /* Colore di riempimento */
-                      stroke: #000; /* Colore del contorno */
-                      stroke-width: 15px; /* Spessore del contorno */
+                      fill: transparent;
+                      stroke: #000;
+                      stroke-width: 15px;
                     }
                   }
                 }
@@ -172,7 +171,7 @@
     }
 
     .boxInfoPlayer {
-      grid-column: span 1; // Occupa 1 colonna
+      grid-column: span 1;
       border: 1px solid #efefef;
       border-radius: 12px;
       padding: 10px;

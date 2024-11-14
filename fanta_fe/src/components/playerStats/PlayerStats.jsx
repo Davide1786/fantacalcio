@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import style from "./playerStats.module.scss";
 import Grid from "@mui/material/Grid2";
 import { Button, Typography } from "@mui/material";
@@ -22,7 +21,7 @@ import { deleteStatsPlayer, fetchPlayerStats } from "../../api/api";
 import PortalModal from "../portalModal/PortalModal";
 
 const PlayerStats = () => {
-  const { isShowCardStats, data, selectedPlayerStatsId } = useSelector((state) => state.statsPlayers);
+  const { isShowCardStats, data } = useSelector((state) => state.statsPlayers);
   const { playerList } = useSelector((state) => state.player);
   const dispatch = useDispatch();
   const [isShowModal, setIsShowModal] = useState(false);

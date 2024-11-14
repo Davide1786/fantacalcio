@@ -1,16 +1,14 @@
-const { models } = require("../../sequelize"); // Assicurati di importare i modelli
-// const { getIdParam } = require("../helpers"); // Assicurati di avere questa funzione per gestire gli ID
+const { models } = require("../../sequelize");
 
 async function create(req, res) {
   const { minute, playerName, playerSurname, teamId, clubId } = req.body;
 
   try {
-    // Trova il giocatore reale nel club reale
     const foundPlayer = await models.player.findOne({
       where: {
-        name: playerName, // Cristiano
-        surname: playerSurname, // Ronaldo
-        id_club: clubId, // Juventus (o altro club reale)
+        name: playerName,
+        surname: playerSurname,
+        id_club: clubId,
       },
     });
 
@@ -18,11 +16,10 @@ async function create(req, res) {
       return res.status(404).json({ error: "Giocatore non trovato nel club specificato" });
     }
 
-    // Crea un nuovo goal per il giocatore reale e il team fantasy
     const newGoal = await models.goal.create({
       minute,
-      id_player: foundPlayer.id, // ID del giocatore trovato
-      id_team: teamId, // ID del team fantasy
+      id_player: foundPlayer.id,
+      id_team: teamId,
     });
 
     // Trova il team fantasy che ha acquistato questo giocatore
@@ -30,11 +27,10 @@ async function create(req, res) {
       where: {
         id_player: foundPlayer.id, // Cristiano Ronaldo
       },
-      include: [models.team], // Associa il team fantasy
+      include: [models.team], // Associo team fantasy
     });
 
     if (owningFantasyTeam) {
-      // Incrementa il numero di gol segnati per il team fantasy
       await owningFantasyTeam.team.increment("goals_scored", { by: 1 });
 
       res.status(201).json({

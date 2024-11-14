@@ -3,20 +3,18 @@ import { createSlice } from "@reduxjs/toolkit";
 const clubSlice = createSlice({
   name: "club",
   initialState: {
-    clubList: [], // Per la lista dei club
-    selectedClub: null, // Per il singolo club
+    clubList: [],
+    selectedClub: null,
     status: "idle",
     error: null,
   },
   reducers: {
-    // Fetch della lista dei club
     fetchClubListStart: (state) => {
       state.status = "loading";
     },
     fetchClubListSuccess: (state, action) => {
       state.status = "succeeded";
-      // state.clubList = [...state.clubList, action.payload]; // Popola solo la lista dei club
-      state.clubList = action.payload; // Popola solo la lista dei club
+      state.clubList = action.payload;
     },
     fetchClubListFailure: (state, action) => {
       state.status = "failed";
@@ -29,7 +27,7 @@ const clubSlice = createSlice({
     },
     fetchSingleClubSuccess: (state, action) => {
       state.status = "succeeded";
-      state.selectedClub = action.payload; // Popola solo il singolo club
+      state.selectedClub = action.payload;
     },
     fetchSingleClubFailure: (state, action) => {
       state.status = "failed";
@@ -57,7 +55,7 @@ const clubSlice = createSlice({
       // Aggiorna il club nella lista dei club
       state.status = "succeeded";
       state.clubList = state.clubList.map((club) => (club.id === action.payload.id ? action.payload : club));
-      state.selectedClub = action.payload; // Aggiorna anche il singolo club selezionato
+      state.selectedClub = action.payload;
     },
 
     updateClubFailure: (state, action) => {

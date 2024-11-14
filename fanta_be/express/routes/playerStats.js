@@ -1,6 +1,7 @@
-const { models } = require("../../sequelize"); // Assicurati di importare i modelli
-const { getIdParam } = require("../helpers"); // Assicurati di avere questa funzione per gestire gli ID
+const { models } = require("../../sequelize");
+const { getIdParam } = require("../helpers");
 const { Op, Sequelize } = require("sequelize");
+
 // recupera tutti le statistiche
 async function getAll(req, res) {
   try {
@@ -8,7 +9,7 @@ async function getAll(req, res) {
       include: [
         {
           model: models.player,
-          attributes: ["name", "surname"], // Prendi le tabelle che servono
+          attributes: ["name", "surname"],
         },
       ],
     });
@@ -21,13 +22,13 @@ async function getAll(req, res) {
 
 async function getById(req, res) {
   try {
-    const playerId = getIdParam(req); // Ottieni l'ID del giocatore dalla richiesta
+    const playerId = getIdParam(req);
     const stats = await models.statPlayer.findAll({
       where: { playerId },
     });
 
     if (stats.length > 0) {
-      res.status(200).json(stats); // Ritorna un array di statistiche
+      res.status(200).json(stats);
     } else {
       res.status(404).send("404 - Nessuna statistica trovata per questo giocatore");
     }
@@ -99,7 +100,7 @@ async function create(req, res) {
       number_goal_conceded,
       number_goal,
       number_assist,
-      playerId: foundPlayer.id, // Associa l'id del giocatore trovato
+      playerId: foundPlayer.id,
     });
 
     res.status(201).json(playerStat);
@@ -122,7 +123,7 @@ async function update(req, res) {
     number_goal_conceded,
     number_goal,
     number_assist,
-    playerId, // ora usiamo playerId
+    playerId,
   } = req.body;
 
   if (req.body.id !== id) {
@@ -160,7 +161,7 @@ async function update(req, res) {
       return res.status(400).json({ message: "Statistica non trovata!" });
     }
 
-    const foundPlayer = await models.player.findByPk(playerId); // cerca il giocatore con playerId
+    const foundPlayer = await models.player.findByPk(playerId);
 
     if (!foundPlayer) {
       return res.status(400).json({ message: "Giocatore non trovato!" });

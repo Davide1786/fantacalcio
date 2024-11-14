@@ -1,22 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchListPlayer, addSinglePlayer, updateSinglePlayer, addStatsPlayer, editStatsPlayer, deletePlayerApi, deleteStatsPlayer } from "../../api/api";
+import { fetchListPlayer, addStatsPlayer, editStatsPlayer } from "../../api/api";
+import { fetchListPlayerStart, fetchListPlayerSuccess, fetchListPlayerFailure } from "../../../store/reducer/player.reducer";
 import {
-  fetchListPlayerStart,
-  fetchListPlayerSuccess,
-  fetchListPlayerFailure,
-  updatePlayerFailure,
-  updatePlayerSuccess,
-  updatePlayerStart,
-  addNewPlayerStart,
-  addNewPlayerSuccess,
-  addNewPlayerFailure,
-  deletePlayerFailure,
-  deletePlayerSuccess,
-  deletePlayerStart,
-} from "../../../store/reducer/player.reducer";
-import {
-  setIsShow,
   setIsEmpty,
   addPlayerStatsStart,
   addPlayerStatsSuccess,
@@ -25,13 +11,10 @@ import {
   editPlayerStatsSuccess,
   editPlayerStatsFailure,
   setSelectedPlayerStatsId,
-  deletePlayerStatsStart,
-  deletePlayerStatsSuccess,
-  deletePlayerStatsFailure,
 } from "../../../store/reducer/statsPlayer.reducer";
 import style from "./player.module.scss";
 import Grid from "@mui/material/Grid2";
-import { Button, Typography, TextField, Checkbox, FormControl, InputLabel, Select, MenuItem, FormControlLabel } from "@mui/material";
+import { Button, Typography, TextField, Checkbox, FormControlLabel } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import PortalSelect from "../portalSelect/PortalSelect";
@@ -81,7 +64,6 @@ const FormStats = ({ formik, onFormikStatsChange }) => {
     fetchPlayers();
   }, []);
 
-  // after edit player
   useEffect(() => {
     if (isUpdating) {
       setIsUpdating(false);
@@ -108,6 +90,12 @@ const FormStats = ({ formik, onFormikStatsChange }) => {
       dispatch(setIsEmpty(false));
     }
   }, [isEmpty]);
+
+  useEffect(() => {
+    if (formikStats) {
+      onFormikStatsChange(formikStats);
+    }
+  }, [formikStats, onFormikStatsChange]);
 
   const formikStats = useFormik({
     initialValues: {
@@ -172,7 +160,6 @@ const FormStats = ({ formik, onFormikStatsChange }) => {
     },
   });
 
-  // click select edit statsPlayer
   const handleChangeStatsPlayer = (event) => {
     const selectedPlayerStatsId = event.target.value;
     const selectedStats = playerList.find((player) => player.id === selectedPlayerStatsId);
@@ -264,13 +251,6 @@ const FormStats = ({ formik, onFormikStatsChange }) => {
     setEditPlayerStats(false);
   };
 
-  // Quando formikStats è pronto, chiamo la funzione del padre per inviarlo
-  useEffect(() => {
-    if (formikStats) {
-      onFormikStatsChange(formikStats); // Passa formikStats al componente padre
-    }
-  }, [formikStats, onFormikStatsChange]);
-
   return (
     <Grid className={style.statsInput}>
       <Typography variant="h6" component="h2">
@@ -282,7 +262,7 @@ const FormStats = ({ formik, onFormikStatsChange }) => {
           <Grid className={style.field_container}>
             <PortalSelect
               label="Giocatore"
-              name="player" // Cambia a 'player' se il campo si chiama 'player' in formikStats
+              name="player"
               value={selectedPlayerStatsId || ""}
               options={playerList.map((player) => ({
                 value: player.id,

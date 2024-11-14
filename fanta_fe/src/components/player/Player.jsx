@@ -17,7 +17,6 @@ import {
 } from "../../../store/reducer/player.reducer";
 import {
   setIsShow,
-  setIsEmpty,
   singlePlayerStatsStart,
   singlePlayerStatsSuccess,
   singlePlayerStatsFailure,
@@ -41,7 +40,7 @@ import PortalModalError from "../portalModal/PortalModalError";
 import FormStats from "./FormStats";
 
 const Player = () => {
-  const { isShowCardStats, isEditStats, selectedPlayerStatsId, isEmpty } = useSelector((state) => state.statsPlayers);
+  const { isShowCardStats } = useSelector((state) => state.statsPlayers);
   const { playerList } = useSelector((state) => state.player);
   const { data } = useSelector((state) => state.statsPlayers);
   const { clubList } = useSelector((state) => state.club);
@@ -73,9 +72,12 @@ const Player = () => {
   const [isShowModalInfo, setIsShowModalInfo] = useState(false);
 
   const [isShowModal, setIsShowModal] = useState(false);
-  const [paramsId, setParamsId] = useState(null); // Salva l'id del club selezionato
+  const [paramsId, setParamsId] = useState(null);
   const [isShowModalError, setIsShowModalError] = useState(false);
   const [msg, setMsg] = useState("");
+  const [formikStats, setFormikStats] = useState(null);
+
+  const isFiltered = activeRole;
 
   // api
   const fetchPlayers = async () => {
@@ -152,7 +154,6 @@ const Player = () => {
     fetchPlayers();
   }, []);
 
-  // after edit player
   useEffect(() => {
     if (isUpdating) {
       setIsUpdating(false);
@@ -166,6 +167,20 @@ const Player = () => {
     }
   }, [editPlayer]);
 
+  useEffect(() => {
+    setFilteredPlayers(playerList);
+  }, [playerList]);
+
+  useEffect(() => {
+    if (selectedPlayer) {
+      formik.setValues((values) => ({
+        ...values,
+        clubId: selectedPlayer.clubId === null ? "svincolato" : selectedPlayer.clubId,
+      }));
+      formik.setFieldValue("selectedClubId", selectedPlayer.clubId === null ? "svincolato" : selectedPlayer.clubId);
+    }
+  }, [selectedPlayer]);
+
   const recoverInfoPlayer = (player) => {
     formik.setValues({
       ...player,
@@ -178,16 +193,6 @@ const Player = () => {
     setSelectedPlayer(player);
   };
 
-  useEffect(() => {
-    if (selectedPlayer) {
-      formik.setValues((values) => ({
-        ...values,
-        clubId: selectedPlayer.clubId === null ? "svincolato" : selectedPlayer.clubId,
-      }));
-      formik.setFieldValue("selectedClubId", selectedPlayer.clubId === null ? "svincolato" : selectedPlayer.clubId);
-    }
-  }, [selectedPlayer]);
-
   const handleChangeClub = (event) => {
     const selectedClubId = event.target.value || "svincolato";
     formik.setTouched({ ...formik.touched, clubName: false });
@@ -196,7 +201,7 @@ const Player = () => {
       formik.setValues((prevState) => ({
         ...prevState,
         clubName: "Svincolato",
-        clubId: null, // null per "svincolato"
+        clubId: null,
       }));
     } else {
       const selectedClub = clubList.find((club) => club.id === selectedClubId);
@@ -225,14 +230,12 @@ const Player = () => {
       selectedClubId: "",
     },
     validationSchema: Yup.object({
-      // name: Yup.string().required("Campo obbligatorio"),
       name: Yup.string()
         .matches(/^(?!\s)(?!.*\s$)[A-Za-zàèéìòùÀÈÉÌÒÙ\s-]+$/, "Il nome non può iniziare o finire con uno spazio")
         .required("Campo obbligatorio"),
       surname: Yup.string()
         .matches(/^(?!\s)(?!.*\s$)[A-Za-zàèéìòùÀÈÉÌÒÙ\s-]+$/, "Il nome non può iniziare o finire con uno spazio")
         .required("Campo obbligatorio"),
-      // surname: Yup.string().required("Campo obbligatorio"),
       age: Yup.number()
         .typeError("Deve essere un numero")
         .required("Campo obbligatorio")
@@ -241,14 +244,13 @@ const Player = () => {
       nationality: Yup.string().required("Campo obbligatorio"),
       role: Yup.string().required("Campo obbligatorio"),
       clubName: Yup.lazy((value) => {
-        // Condizione per il campo clubName, che dipende da editPlayer
         if (editPlayer) {
-          return Yup.string().nullable(); // Se siamo in modalità modifica, il campo può essere null
+          return Yup.string().nullable();
         } else {
           if (value === "" || value === null) {
             return Yup.string().required("Campo obbligatorio");
           } else {
-            return Yup.string().nullable(); // Se non è vuoto o null, è valido
+            return Yup.string().nullable();
           }
         }
       }),
@@ -293,30 +295,14 @@ const Player = () => {
   };
 
   const showModal = (par) => {
-    setParamsId(par); // Imposta l'id del club da eliminare
-    setIsShowModal(true); // Mostra il modale
+    setParamsId(par);
+    setIsShowModal(true);
   };
 
   const closeModal = () => {
     setIsShowModal(false);
-    setParamsId(null); // Resetta l'id selezionato
+    setParamsId(null);
   };
-
-  // const handleDeletePlayer = (player) => {
-  //   const playerStatsDelete = data?.filter((sta) => sta.playerId === player.id);
-
-  //   if (playerStatsDelete && playerStatsDelete.length > 0) {
-  //     playerStatsDelete.forEach((stat) => {
-  //       deleteStats(stat.id);
-  //     });
-  //   }
-  //   deletePlayer(player);
-  //   formik.handleClean();
-  //   // formikStats.cleanStats();
-  //   dispatch(setIsShow({ id: "", boolean: false }));
-  // };
-
-  const [formikStats, setFormikStats] = useState(null); // Stato per formikStats
 
   const handleDeletePlayer = (player) => {
     const playerStatsDelete = data?.filter((sta) => sta.playerId === player.id);
@@ -329,32 +315,25 @@ const Player = () => {
     deletePlayer(player);
     formik.handleClean();
     if (formikStats) {
-      formikStats.cleanStats(); // Usa formikStats per fare qualcosa
+      formikStats.cleanStats();
     }
     dispatch(setIsShow({ id: "", boolean: false }));
   };
 
-  // Funzione per aggiornare formikStats
   const handleFormikStatsChange = (newFormikStats) => {
     setFormikStats(newFormikStats);
   };
 
   const togglePlayersList = (player) => {
     if (oldIdStats === player.id) {
-      // Se il giocatore selezionato è lo stesso, chiudi la vista delle statistiche
       dispatch(setIsShow({ id: player.id, boolean: !isShowCardStats.boolean }));
       recoverSingolStats(player);
     } else {
-      // Se il giocatore è diverso, aggiorna oldIdStats e recupera le nuove statistiche
       setOldIdStats(player.id);
       recoverSingolStats(player);
       dispatch(setIsShow({ id: player.id, boolean: true }));
     }
   };
-
-  useEffect(() => {
-    setFilteredPlayers(playerList);
-  }, [playerList]);
 
   const handleFilterRole = (role) => {
     if (activeRole === role) {
@@ -365,8 +344,6 @@ const Player = () => {
       setFilteredPlayers(playerList.filter((player) => player.role === role));
     }
   };
-
-  const isFiltered = activeRole;
 
   const showModalPlayer = (par) => {
     setParamsId(par);
@@ -505,13 +482,7 @@ const Player = () => {
             </Grid>
           </Grid>
 
-          {/* =========================== Crea statistiche giocatore */}
-          {/* <FormStats formik={formik} passoIlValore={passoIlValore} /> */}
-          <FormStats
-            formik={formik}
-            onFormikStatsChange={handleFormikStatsChange} // Passa la funzione come prop
-          />
-          {/* =========================== Crea statistiche giocatore */}
+          <FormStats formik={formik} onFormikStatsChange={handleFormikStatsChange} />
         </Grid>
 
         <Grid className={style.boxList}>

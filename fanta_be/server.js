@@ -1,8 +1,6 @@
 const app = require("./express/app");
 const sequelize = require("./sequelize");
 const PORT = 3001; // 8080
-// const cors = require("cors");
-// app.use(cors());
 
 async function assertDatabaseConnectionOk() {
   console.log(`Checking database connection...`);

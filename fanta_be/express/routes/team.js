@@ -1,4 +1,4 @@
-const { models } = require("../../sequelize"); // Assicurati di importare i modelli
+const { models } = require("../../sequelize");
 
 async function create(req, res) {
   const { name, total_player, initial_credits_team, final_credits_team, colors_home_team, colors_away_team, mailUser, nameLeague } = req.body;
@@ -30,8 +30,8 @@ async function create(req, res) {
       final_credits_team,
       colors_home_team,
       colors_away_team,
-      id_user: foundUser.id, // Associa l'id dell'utente trovato
-      id_league: foundLeague.id, // Associa l'id della lega trovata
+      id_user: foundUser.id,
+      id_league: foundLeague.id,
     });
 
     res.status(201).json(newTeam);

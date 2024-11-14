@@ -100,7 +100,7 @@ const PortalSelect = ({ label, name, value, options, formik, onChangeCustom, onC
       error={
         (name === "player" && formik.touched.playerName && Boolean(formik.errors.playerName)) ||
         (name === "clubId" && formik.touched.clubName && Boolean(formik.errors.clubName)) ||
-        (formik.touched[name] && Boolean(formik.errors[name])) // Altri campi generici
+        (formik.touched[name] && Boolean(formik.errors[name]))
       }>
       {options.map((option) => (
         <MenuItem key={option.value} value={option.value}>

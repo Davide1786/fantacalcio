@@ -1,17 +1,10 @@
-const { models } = require("../../sequelize"); // Importa i modelli
-const { getIdParam } = require("../helpers"); // Assicurati di avere questa funzione per gestire gli ID
+const { models } = require("../../sequelize");
+const { getIdParam } = require("../helpers");
 
 // recupera tutti i club
 async function getAll(req, res) {
   try {
-    const club = await models.club.findAll({
-      // include: [
-      //   {
-      //     model: models.player,
-      //     attributes: ["name", "surname"], // Prendi le tabelle che servono
-      //   },
-      // ],
-    });
+    const club = await models.club.findAll({});
     res.status(200).json(club);
   } catch (error) {
     console.error("Errore durante il recupero dei club:", error);
@@ -22,7 +15,6 @@ async function getAll(req, res) {
 // crea il club
 async function create(req, res) {
   const { name, stadium, derby, colors_home, colors_away } = req.body;
-  // Controlla se è stato fornito un ID
   if (req.body.id) {
     return res.status(400).send("Bad request: L'ID non deve essere fornito, poiché viene determinato automaticamente dal database.");
   }
@@ -31,21 +23,14 @@ async function create(req, res) {
     if (!name || !stadium || !derby || !colors_home || !colors_away) {
       return res.status(400).json({ message: "Campi mancanti 111" });
     }
-    // const newClub = await models.club.create(req.body);
-    // res.status(201).json(newClub); // Restituisce il club creato
 
     const normalizedName = name ? name.trim().toLowerCase() : "";
 
-    // Verifica se un altro giocatore esiste con lo stesso nome e cognome
     const existingClub = await models.club.findOne({
       where: {
         name: normalizedName,
-        // id: { [Op.ne]: id }, // Esclude l'ID del giocatore correntes
       },
     });
-
-    // Controlla se esiste già un club con lo stesso nome
-    // const existingClub = await models.club.findOne({ where: { name } });
 
     if (existingClub) {
       return res.status(409).json({ message: "Un club con lo stesso nome esiste già" });
@@ -76,7 +61,7 @@ async function getById(req, res) {
       include: [
         {
           model: models.player,
-          attributes: ["name", "surname"], // Prendi i campi che ti servono dai giocatori
+          attributes: ["name", "surname"],
         },
       ],
     });
@@ -95,7 +80,6 @@ async function getById(req, res) {
 // aggiorna il singolo club
 async function update(req, res) {
   const id = getIdParam(req);
-  // Accetta l'UPDATE solo se il parametro `:id` corrisponde all'ID nel corpo
   const { name, stadium, derby, colors_home, colors_away } = req.body;
 
   if (req.body.id === id) {

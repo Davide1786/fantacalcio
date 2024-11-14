@@ -1,5 +1,5 @@
-const { models } = require("../../sequelize"); // Assicurati di importare i modelli
-const { getIdParam } = require("../helpers"); // Assicurati di avere questa funzione per gestire gli ID
+const { models } = require("../../sequelize");
+const { getIdParam } = require("../helpers");
 const { Op } = require("sequelize");
 
 // recupera tutti i player
@@ -9,7 +9,7 @@ async function getAll(req, res) {
       include: [
         {
           model: models.club,
-          attributes: ["name"], // Prendi solo il nome del club
+          attributes: ["name"],
         },
       ],
     });
@@ -24,27 +24,23 @@ async function getAll(req, res) {
 async function create(req, res) {
   const { name, surname, age, nationality, role, price_player, info, clubName } = req.body;
 
-  // Verifica che l'ID non sia fornito manualmente
   if (req.body.id) {
     return res.status(400).send("Bad request: L'ID non deve essere fornito, poiché viene determinato automaticamente dal database.");
   }
 
   try {
-    // Validazione dei campi richiesti
     if (!name || !surname || !age || !nationality || !role || !price_player || !info || clubName === undefined) {
       return res.status(400).json({ message: "Campi mancanti" });
     }
 
     let clubId = null;
 
-    // Cerca il club per nome se non è "Svincolato"
     if (clubName !== "Svincolato") {
       const foundClub = await models.club.findOne({ where: { name: clubName } });
 
       if (!foundClub) {
         return res.status(404).json({ error: "Club non trovato" });
       }
-
       // Imposta l'ID del club trovato
       clubId = foundClub.id;
     }
@@ -77,11 +73,9 @@ async function create(req, res) {
 
 // Recupera un singolo giocatore in base al suo id
 async function getById(req, res) {
-  // const { id } = req.params;
   const id = getIdParam(req);
 
   try {
-    // Usa findByPk per trovare il giocatore con l'id specificato
     const player = await models.player.findByPk(id);
 
     if (!player) {
@@ -111,7 +105,6 @@ async function update(req, res) {
       return res.status(404).json({ message: "Giocatore non trovato!" });
     }
 
-    // Normalizza i valori di nome e cognome
     const normalizedName = name ? name.trim().toLowerCase() : "";
     const normalizedSurname = surname ? surname.trim().toLowerCase() : "";
 
@@ -120,7 +113,7 @@ async function update(req, res) {
       where: {
         name: normalizedName,
         surname: normalizedSurname,
-        id: { [Op.ne]: id }, // Esclude l'ID del giocatore corrente
+        id: { [Op.ne]: id },
       },
     });
 
@@ -136,7 +129,7 @@ async function update(req, res) {
       }
     }
 
-    // Costruisci l'oggetto di aggiornamento dinamicamente
+    // Costruisco l'oggetto di aggiornamento dinamicamente
     const updateData = {};
     if (name !== undefined) updateData.name = name;
     if (surname !== undefined) updateData.surname = surname;
@@ -152,7 +145,6 @@ async function update(req, res) {
     }
     if (clubName !== undefined) updateData.clubName = clubName;
 
-    // Esegui l'aggiornamento del giocatore
     await player.update(updateData);
 
     res.status(200).json({
@@ -167,7 +159,7 @@ async function update(req, res) {
 
 // Funzione per eliminare un giocatore
 async function remove(req, res) {
-  const id = getIdParam(req); // Recupera l'ID dai parametri della richiesta
+  const id = getIdParam(req);
 
   try {
     // Trova il giocatore con l'id specificato
